@@ -11,6 +11,7 @@ object ReminderScheduler {
 
     fun schedule(
         context: Context,
+        contestId: Int,        // ← NEW: pass ID to avoid hash collision
         contestName: String,
         platform: String,
         startTime: Long
@@ -18,7 +19,7 @@ object ReminderScheduler {
         val alarmManager =
             context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // 1️⃣ START OF DAY (9 AM)
+        // START OF DAY (9 AM)
         val startOfDay = Calendar.getInstance().apply {
             timeInMillis = startTime
             set(Calendar.HOUR_OF_DAY, 9)
@@ -26,16 +27,17 @@ object ReminderScheduler {
             set(Calendar.SECOND, 0)
         }.timeInMillis
 
-        // 2️⃣ ONE HOUR BEFORE
+        // ONE HOUR BEFORE
         val oneHourBefore = startTime - 60 * 60 * 1000
 
-        scheduleExact(context, alarmManager, contestName, platform, startOfDay, 1)
-        scheduleExact(context, alarmManager, contestName, platform, oneHourBefore, 2)
+        scheduleExact(context, alarmManager, contestId, contestName, platform, startOfDay, type = 1)
+        scheduleExact(context, alarmManager, contestId, contestName, platform, oneHourBefore, type = 2)
     }
 
     private fun scheduleExact(
         context: Context,
         alarmManager: AlarmManager,
+        contestId: Int,        // ← use ID instead of name
         contestName: String,
         platform: String,
         triggerAt: Long,
@@ -47,15 +49,15 @@ object ReminderScheduler {
             putExtra("type", type)
         }
 
-        val requestCode = (contestName + type).hashCode()
+        // ← FIXED: use contestId * 10 + type — guaranteed unique, no collision
+        val requestCode = contestId * 10 + type
 
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             requestCode,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or
-                    if (Build.VERSION.SDK_INT >= 31)
-                        PendingIntent.FLAG_MUTABLE else 0
+                    if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_IMMUTABLE else 0
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&

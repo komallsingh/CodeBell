@@ -28,9 +28,10 @@ fun ContestActionsSheet(
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
 
+    // The null-safe check is no longer needed, simplify to:
     var reminderOffset by remember {
         mutableStateOf(
-            when (contest.reminderTimeMillis?.let { contest.startTimeMillis - it }) {
+            when (contest.startTimeMillis - contest.reminderTimeMillis) {
                 24 * 60 * 60 * 1000L -> 1440
                 60 * 60 * 1000L -> 60
                 30 * 60 * 1000L -> 30
@@ -94,6 +95,7 @@ fun ContestActionsSheet(
                     viewModel.updateContest(updated)
                     ReminderScheduler.schedule(
                         context = context,
+                        contestId = updated.id,            // ← add this
                         contestName = updated.name,
                         platform = updated.platform,
                         startTime = updated.startTimeMillis

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.komal.myapplication.database.AppDataBase
 import com.komal.myapplication.database.ContestEntity
 import com.komal.myapplication.database.Repo
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -17,13 +18,17 @@ class ContestViewModel(application: Application) : AndroidViewModel(application)
 
     val contests: StateFlow<List<ContestEntity>>
 
+    // ← NEW: track API fetch state for loading indicator
+    private val _isFetching = MutableStateFlow(false)
+    val isFetching: StateFlow<Boolean> = _isFetching
+
+    // ← NEW: track fetch errors
+    private val _fetchError = MutableStateFlow<String?>(null)
+    val fetchError: StateFlow<String?> = _fetchError
+
     init {
-        val dao = AppDataBase
-            .getDatabase(application)
-            .contestDao()
-
+        val dao = AppDataBase.getDatabase(application).contestDao()
         repository = Repo(dao)
-
         contests = repository.allContest
             .stateIn(
                 viewModelScope,
@@ -34,25 +39,53 @@ class ContestViewModel(application: Application) : AndroidViewModel(application)
 
     fun insertContest(contest: ContestEntity) {
         viewModelScope.launch {
-            repository.insert(contest)
+            try { repository.insert(contest) }
+            catch (e: Exception) { e.printStackTrace() }
         }
     }
 
     fun deleteContest(contest: ContestEntity) {
         viewModelScope.launch {
-            repository.delete(contest)
+            try { repository.delete(contest) }
+            catch (e: Exception) { e.printStackTrace() }
         }
     }
 
     fun updateContest(contest: ContestEntity) {
         viewModelScope.launch {
-            repository.update(contest)
+            try { repository.update(contest) }
+            catch (e: Exception) { e.printStackTrace() }
         }
     }
 
     fun clearAll() {
         viewModelScope.launch {
-            repository.clearAll()
+            try { repository.clearAll() }
+            catch (e: Exception) { e.printStackTrace() }
+        }
+    }
+
+    // ← NEW: fetch from API
+    fun fetchApiContests() {
+        viewModelScope.launch {
+            _isFetching.value = true
+            _fetchError.value = null
+            try {
+                repository.fetchAndStoreApiContests()
+            } catch (e: Exception) {
+                _fetchError.value = "Failed to fetch contests. Check your internet."
+                e.printStackTrace()
+            } finally {
+                _isFetching.value = false
+            }
+        }
+    }
+
+    // ← NEW: toggle bookmark
+    fun toggleBookmark(contest: ContestEntity) {
+        viewModelScope.launch {
+            try { repository.toggleBookmark(contest) }
+            catch (e: Exception) { e.printStackTrace() }
         }
     }
 }

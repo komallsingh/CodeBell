@@ -2,32 +2,29 @@ package com.komal.myapplication.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Computer
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.komal.myapplication.reminder.ReminderScheduler
 import com.komal.myapplication.viewmodel.ContestViewModel
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.floor
 
 @Composable
 fun HomeScreen(
@@ -35,24 +32,36 @@ fun HomeScreen(
     viewModel: ContestViewModel = viewModel()
 ) {
     val contests by viewModel.contests.collectAsState()
+    val isFetching by viewModel.isFetching.collectAsState()
 
-    // Auto-remove past contests
-    LaunchedEffect(contests) {
-        val now = System.currentTimeMillis()
-        contests.filter { it.startTimeMillis <= now }.forEach { pastContest ->
-            viewModel.deleteContest(pastContest)
+    LaunchedEffect(Unit) {
+        while (true) {
+            val now = System.currentTimeMillis()
+            contests.filter { it.startTimeMillis <= now }
+                .forEach { viewModel.deleteContest(it) }
+            delay(60_000L)
         }
     }
 
+    LaunchedEffect(Unit) { viewModel.fetchApiContests() }
+
     val now = System.currentTimeMillis()
+    val endOfToday = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 23)
+        set(Calendar.MINUTE, 59)
+        set(Calendar.SECOND, 59)
+    }.timeInMillis
+
     val upcomingContests = contests
         .filter { it.startTimeMillis > now }
         .sortedBy { it.startTimeMillis }
 
-    val nextContest = upcomingContests.firstOrNull()
-    val upcomingList = upcomingContests.drop(1)
+    val todayContests = upcomingContests.filter { it.startTimeMillis <= endOfToday }
+    val nearestContests = if (todayContests.size >= 3) todayContests.take(3)
+    else todayContests + upcomingContests.filter { it.startTimeMillis > endOfToday }.take(3 - todayContests.size)
 
-    // Live countdown for next contest
+    val nextContest = nearestContests.firstOrNull()
+
     var remainingTime by remember { mutableStateOf(0L) }
     LaunchedEffect(nextContest) {
         while (true) {
@@ -64,231 +73,245 @@ fun HomeScreen(
         }
     }
 
-    val background = Brush.verticalGradient(
-        colors = listOf(Color(0xFF0F172A), Color(0xFF020617))
-    )
-
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(background)
-            .padding(16.dp)
-    ) {
-        // Top Bar
-        Row(
-            modifier = Modifier.fillMaxWidth().offset(y=50.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            //horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .background(Color(0xFF2563EB), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Computer,
-                        contentDescription = null,
-                        tint = Color.White
-                    )
-                }
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    text = "ContestTracker",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(Color(0xFF0A1628), Color(0xFF020817))
                 )
-            }
-
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null,
-                tint = Color.White
             )
-        }
-
-        Spacer(Modifier.height(80.dp))
-
-        Text(
-            text = "Next Major Contest",
-            color = Color.White,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        if (nextContest != null) {
-            ContestCard(nextContest, remainingTime)
-        } else {
-            Text(
-                text = "No upcoming contests",
-                color = Color.Gray
-            )
-        }
-
-        Spacer(Modifier.height(24.dp))
-
-        // Upcoming Challenges
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
         ) {
-            Text(
-                text = "Upcoming Challenges",
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-            //Text(text = "View All", color = Color(0xFF60A5FA))
-        }
+            Spacer(Modifier.height(56.dp))
 
-        Spacer(Modifier.height(12.dp))
-
-        if (upcomingList.isEmpty()) {
-            Text(text = "No upcoming challenges", color = Color.Gray)
-        } else {
-            upcomingList.forEach { contest ->
-                var timeLeft by remember { mutableStateOf(contest.startTimeMillis - System.currentTimeMillis()) }
-                LaunchedEffect(contest.startTimeMillis) {
-                    while (timeLeft > 0) {
-                        timeLeft = contest.startTimeMillis - System.currentTimeMillis()
-                        delay(1000L)
+            // ── Top Bar ──
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(
+                                Brush.linearGradient(
+                                    listOf(Color(0xFF3B82F6), Color(0xFF1D4ED8))
+                                ),
+                                CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Computer,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = "ContestTracker",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.3.sp
+                        )
+                        Text(
+                            text = "Stay ahead of the game",
+                            color = Color(0xFF64748B),
+                            fontSize = 11.sp
+                        )
                     }
                 }
+                IconButton(
+                    onClick = { navController.navigate("view all") },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color(0xFF0F172A), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = Color(0xFF94A3B8),
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
 
-                UpcomingItem(
-                    title = contest.name,
-                    subtitle = "${contest.platform} • ${
-                        SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault())
-                            .format(Date(contest.startTimeMillis))
-                    }",
-                    remainingTime = timeLeft
+            Spacer(Modifier.height(28.dp))
+
+            // ── Fetch progress ──
+            if (isFetching) {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(2.dp)
+                        .clip(RoundedCornerShape(1.dp)),
+                    color = Color(0xFF3B82F6),
+                    trackColor = Color(0xFF1E293B)
+                )
+                Spacer(Modifier.height(16.dp))
+            }
+
+            // ── Date label ──
+            val todayLabel = SimpleDateFormat("EEEE, dd MMM yyyy", Locale.getDefault()).format(Date())
+            Row(
+                modifier = Modifier
+                    .background(Color(0xFF0F172A), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                Text(
+                    text = "📅  $todayLabel",
+                    color = Color(0xFF64748B),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium
                 )
             }
-        }
 
-        Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(20.dp))
 
-        OutlinedButton(
-            onClick = { navController.navigate("view all") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF334155))
-        ) {
-            Text("Explore Calendar", color = Color.White)
-        }
-    }
-}
-
-@Composable
-fun ContestCard(contest: com.komal.myapplication.database.ContestEntity, remainingTime: Long) {
-    val hours = floor(remainingTime / 1000 / 3600.0).toInt()
-    val minutes = floor((remainingTime / 1000 % 3600) / 60.0).toInt()
-    val seconds = (remainingTime / 1000 % 60).toInt()
-val context=LocalContext.current
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 180.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF020617))
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(contest.platform.uppercase(), color = Color(0xFF94A3B8), fontSize = 12.sp)
-            Spacer(Modifier.height(4.dp))
-            Text(contest.name, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(12.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                TimeBox(hours, "HOURS")
-                TimeBox(minutes, "MINS")
-                TimeBox(seconds, "SECS")
-            }
-            Spacer(Modifier.height(12.dp))
-            Button(
-                onClick = { ReminderScheduler.schedule(
-                    context = context,
-                    contestName = contest.name,
-                    platform = contest.platform,
-                    startTime = contest.startTimeMillis
-                ) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(Icons.Default.Notifications, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Set Reminder")
-            }
-        }
-    }
-}
-
-@Composable
-fun UpcomingItem(title: String, subtitle: String, remainingTime: Long = 0L) {
-    val hours = floor(remainingTime / 1000 / 3600.0).toInt()
-    val minutes = floor((remainingTime / 1000 % 3600) / 60.0).toInt()
-    val seconds = (remainingTime / 1000 % 60).toInt()
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF020617))
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+            // ── Section header ──
             Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Column {
+                    Text(
+                        text = "Next Contest",
+                        color = Color(0xFF94A3B8),
+                        fontSize = 12.sp,
+                        letterSpacing = 1.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Coming Up",
+                        color = Color.White,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                if (upcomingContests.size > 3) {
+                    TextButton(
+                        onClick = { navController.navigate("view all") },
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = Color(0xFF3B82F6)
+                        )
+                    ) {
+                        Text("View All →", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // ── Next contest card ──
+            if (nextContest != null) {
+                ContestCard(nextContest, remainingTime)
+            } else {
                 Box(
                     modifier = Modifier
-                        .size(42.dp)
-                        .background(
-                            Brush.linearGradient(
-                                listOf(Color(0xFF22C55E), Color(0xFF3B82F6))
-                            ),
-                            RoundedCornerShape(12.dp)
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .background(Color(0xFF0F172A), RoundedCornerShape(20.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("🎯", fontSize = 28.sp)
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "No upcoming contests",
+                            color = Color(0xFF475569),
+                            fontSize = 14.sp
                         )
-
-                )
-                Spacer(Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(title, color = Color.White, fontWeight = FontWeight.SemiBold)
-                    Text(subtitle, color = Color(0xFF94A3B8), fontSize = 12.sp)
+                    }
                 }
-                Icon(Icons.Default.NotificationsNone, contentDescription = null, tint = Color.White)
             }
 
-            if (remainingTime > 0) {
-                Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(28.dp))
+
+            // ── Upcoming section ──
+            val upcomingTwo = nearestContests.drop(1)
+            if (upcomingTwo.isNotEmpty()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TimeBox(hours, "HRS", Modifier.weight(1f))
-                    Spacer(Modifier.width(6.dp))
-                    TimeBox(minutes, "MIN", Modifier.weight(1f))
-                    Spacer(Modifier.width(6.dp))
-                    TimeBox(seconds, "SEC", Modifier.weight(1f))
+                    Text(
+                        text = "Also Coming Up",
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "${upcomingTwo.size} contests",
+                        color = Color(0xFF475569),
+                        fontSize = 12.sp
+                    )
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                upcomingTwo.forEach { contest ->
+                    var timeLeft by remember(contest.id) {
+                        mutableStateOf(contest.startTimeMillis - System.currentTimeMillis())
+                    }
+                    LaunchedEffect(contest.id) {
+                        while (timeLeft > 0) {
+                            timeLeft = contest.startTimeMillis - System.currentTimeMillis()
+                            delay(1000L)
+                        }
+                    }
+                    UpcomingItem(
+                        title = contest.name,
+                        subtitle = "${contest.platform} • ${
+                            SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault())
+                                .format(Date(contest.startTimeMillis))
+                        }",
+                        remainingTime = timeLeft
+                    )
+                    Spacer(Modifier.height(8.dp))
                 }
             }
-        }
-    }
-}
 
-@Composable
-fun TimeBox(value: Int, label: String, modifier: Modifier = Modifier) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .background(Color(0xFF0F172A), RoundedCornerShape(12.dp))
-            .padding(vertical = 12.dp)
-    ) {
-        Text(value.toString().padStart(2, '0'), color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Text(label, color = Color(0xFF94A3B8), fontSize = 10.sp)
+            Spacer(Modifier.height(20.dp))
+
+            // ── Explore button ──
+            Button(
+                onClick = { navController.navigate("view all") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF0F172A)
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    Brush.horizontalGradient(
+                        listOf(Color(0xFF1E3A5F), Color(0xFF1E293B))
+                    )
+                )
+            ) {
+                Text(
+                    "Explore All Contests →",
+                    color = Color(0xFF94A3B8),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp
+                )
+            }
+
+            Spacer(Modifier.height(24.dp))
+        }
     }
 }

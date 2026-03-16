@@ -19,6 +19,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        //buildConfigField("String", "CLIST_USERNAME", "\"${findProperty("clist_username")}\"")
+        //buildConfigField("String", "CLIST_API_KEY", "\"${findProperty("clist_api_key")}\"")
     }
 
     buildTypes {
@@ -39,6 +41,7 @@ android {
     }
     buildFeatures {
         compose = true
+       // buildConfig=true
     }
 }
 
@@ -77,4 +80,14 @@ dependencies {
 
     // Room compiler (KSP)
     ksp("androidx.room:room-compiler:2.6.1")
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // WorkManager
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 }
