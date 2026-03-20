@@ -6,14 +6,16 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 class Repo(private val dao: dao) {
 
-    val allContest: Flow<List<ContestEntity>> = dao.getAllContests()
+    val allContest: Flow<List<ContestEntity>>                = dao.getAllContests()
     val contestSortedByStartTime: Flow<List<ContestEntity>> = dao.getAllContestsSortedByStartTime()
-    val bookmarkedContests: Flow<List<ContestEntity>> = dao.getBookmarkedContests()
+    val bookmarkedContests: Flow<List<ContestEntity>>        = dao.getBookmarkedContests()
 
-    suspend fun insert(contest: ContestEntity) { dao.insertContest(contest) }
-    suspend fun delete(contest: ContestEntity) { dao.deleteContest(contest) }
-    suspend fun update(contest: ContestEntity) { dao.updateContest(contest) }
-    suspend fun clearAll() { dao.clearAll() }
+    // ← returns the real Room-assigned ID
+    suspend fun insert(contest: ContestEntity): Long = dao.insertContest(contest)
+
+    suspend fun delete(contest: ContestEntity)  { dao.deleteContest(contest) }
+    suspend fun update(contest: ContestEntity)  { dao.updateContest(contest) }
+    suspend fun clearAll()                       { dao.clearAll() }
 
     suspend fun fetchAndStoreApiContests() {
         dao.clearApiContests()
@@ -22,7 +24,7 @@ class Repo(private val dao: dao) {
         fetchLeetcode()
     }
 
-    // ── CODEFORCES ──
+    // ── CODEFORCES ──────────────────────────────────────────────────────────
     private suspend fun fetchCodeforces() {
         try {
             android.util.Log.d("FETCH_DEBUG", "Fetching Codeforces...")
@@ -36,14 +38,14 @@ class Repo(private val dao: dao) {
                     if (startMillis > now) {
                         dao.insertContest(
                             ContestEntity(
-                                name = contest.name,
-                                platform = "Codeforces",
+                                name            = contest.name,
+                                platform        = "Codeforces",
                                 startTimeMillis = startMillis,
                                 durationSeconds = contest.durationSeconds,
-                                contestUrl = "https://codeforces.com/contest/${contest.id}",
+                                contestUrl      = "https://codeforces.com/contest/${contest.id}",
                                 reminderTimeMillis = 0L,
                                 reminderEnabled = false,
-                                isManual = false
+                                isManual        = false
                             )
                         )
                     }
@@ -54,26 +56,25 @@ class Repo(private val dao: dao) {
         }
     }
 
-    // ── CODECHEF ──
+    // ── CODECHEF ─────────────────────────────────────────────────────────────
     private suspend fun fetchCodechef() {
         try {
             android.util.Log.d("FETCH_DEBUG", "Fetching CodeChef...")
             val response = RetrofitInstance.codechef.getContests()
             val now = System.currentTimeMillis()
             response.future_contests.forEach { contest ->
-                // ← using new field name and parser
                 val startMillis = parseCodechefTime(contest.contest_start_date)
                 if (startMillis > now) {
                     dao.insertContest(
                         ContestEntity(
-                            name = contest.contest_name,
-                            platform = "CodeChef",
+                            name            = contest.contest_name,
+                            platform        = "CodeChef",
                             startTimeMillis = startMillis,
                             durationSeconds = contest.contest_duration.toLongOrNull() ?: 0L,
-                            contestUrl = "https://www.codechef.com/${contest.contest_code}",
+                            contestUrl      = "https://www.codechef.com/${contest.contest_code}",
                             reminderTimeMillis = 0L,
                             reminderEnabled = false,
-                            isManual = false
+                            isManual        = false
                         )
                     )
                 }
@@ -84,7 +85,7 @@ class Repo(private val dao: dao) {
         }
     }
 
-    // ── LEETCODE ──
+    // ── LEETCODE ──────────────────────────────────────────────────────────────
     private suspend fun fetchLeetcode() {
         try {
             android.util.Log.d("FETCH_DEBUG", "Fetching LeetCode...")
@@ -99,14 +100,14 @@ class Repo(private val dao: dao) {
                 if (startMillis > now) {
                     dao.insertContest(
                         ContestEntity(
-                            name = contest.title,
-                            platform = "LeetCode",
+                            name            = contest.title,
+                            platform        = "LeetCode",
                             startTimeMillis = startMillis,
                             durationSeconds = contest.duration.toLong(),
-                            contestUrl = "https://leetcode.com/contest/${contest.titleSlug}",
+                            contestUrl      = "https://leetcode.com/contest/${contest.titleSlug}",
                             reminderTimeMillis = 0L,
                             reminderEnabled = false,
-                            isManual = false
+                            isManual        = false
                         )
                     )
                 }
@@ -117,18 +118,7 @@ class Repo(private val dao: dao) {
         }
     }
 
-    // ── TIME PARSERS ──
-    private fun parseIsoTime(timeStr: String): Long {
-        return try {
-            val sdf = java.text.SimpleDateFormat(
-                "yyyy-MM-dd'T'HH:mm:ssXXX",
-                java.util.Locale.getDefault()
-            )
-            sdf.parse(timeStr)?.time ?: 0L
-        } catch (e: Exception) { 0L }
-    }
-
-    // ← NEW: CodeChef uses "yyyy-MM-dd HH:mm:ss" format
+    // ── TIME PARSERS ──────────────────────────────────────────────────────────
     private fun parseCodechefTime(timeStr: String): Long {
         return try {
             val sdf = java.text.SimpleDateFormat(

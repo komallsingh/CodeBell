@@ -1,5 +1,4 @@
 package com.komal.myapplication.screens
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,9 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
-// ═══════════════════════════════════════════════════════════════════════════════
-//  AppTheme — shared design tokens, import this in every screen
-// ═══════════════════════════════════════════════════════════════════════════════
+
 object AppTheme {
     val BgDeep        = Color(0xFF060D18)
     val BgSurface     = Color(0xFF0C1628)
@@ -46,7 +43,7 @@ object AppTheme {
         colors = listOf(Color(0xFF2563EB), Color(0xFF0EA5E9))
     )
 }
-// ═══════════════════════════════════════════════════════════════════════════════
+
 
 @Composable
 fun WelcomeScreen(navController: NavController) {
@@ -200,14 +197,12 @@ fun WelcomeScreen(navController: NavController) {
             }
 
             Spacer(modifier = Modifier.height(14.dp))
-
             Text(
                 text = "Codeforces · LeetCode · CodeChef",
                 color = AppTheme.TextMuted,
                 fontSize = 11.sp,
                 letterSpacing = 0.3.sp
             )
-
             Spacer(modifier = Modifier.height(44.dp))
         }
     }

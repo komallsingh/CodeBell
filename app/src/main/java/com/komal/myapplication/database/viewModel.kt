@@ -18,11 +18,9 @@ class ContestViewModel(application: Application) : AndroidViewModel(application)
 
     val contests: StateFlow<List<ContestEntity>>
 
-    // ← NEW: track API fetch state for loading indicator
     private val _isFetching = MutableStateFlow(false)
     val isFetching: StateFlow<Boolean> = _isFetching
 
-    // ← NEW: track fetch errors
     private val _fetchError = MutableStateFlow<String?>(null)
     val fetchError: StateFlow<String?> = _fetchError
 
@@ -37,10 +35,18 @@ class ContestViewModel(application: Application) : AndroidViewModel(application)
             )
     }
 
-    fun insertContest(contest: ContestEntity) {
+    /**
+     * Insert a contest and return the real Room-assigned ID via [onInserted].
+     * Use this when you need to schedule a reminder right after insert.
+     */
+    fun insertContest(contest: ContestEntity, onInserted: (realId: Long) -> Unit = {}) {
         viewModelScope.launch {
-            try { repository.insert(contest) }
-            catch (e: Exception) { e.printStackTrace() }
+            try {
+                val realId = repository.insert(contest)   // ← Long returned by Room
+                onInserted(realId)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -65,7 +71,6 @@ class ContestViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    // ← NEW: fetch from API
     fun fetchApiContests() {
         viewModelScope.launch {
             _isFetching.value = true
@@ -81,7 +86,6 @@ class ContestViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    // ← NEW: toggle bookmark
     fun toggleBookmark(contest: ContestEntity) {
         viewModelScope.launch {
             try { repository.toggleBookmark(contest) }

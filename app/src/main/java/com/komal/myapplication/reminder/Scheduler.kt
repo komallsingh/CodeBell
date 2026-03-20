@@ -9,48 +9,29 @@ import java.util.Calendar
 
 object ReminderScheduler {
 
+    /**
+     * Schedule a single reminder at [reminderTime] (exact epoch ms).
+     * Call this after computing: reminderTime = startTime - offsetMillis
+     */
     fun schedule(
         context: Context,
-        contestId: Int,        // ← NEW: pass ID to avoid hash collision
+        contestId: Int,
         contestName: String,
         platform: String,
-        startTime: Long
+        reminderTime: Long,         // ← exact time to fire the alarm
+        offsetLabel: String = ""    // ← "1 Hour Before" etc., shown in notification
     ) {
-        val alarmManager =
-            context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        if (reminderTime <= System.currentTimeMillis()) return  // already past
 
-        // START OF DAY (9 AM)
-        val startOfDay = Calendar.getInstance().apply {
-            timeInMillis = startTime
-            set(Calendar.HOUR_OF_DAY, 9)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-        }.timeInMillis
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // ONE HOUR BEFORE
-        val oneHourBefore = startTime - 60 * 60 * 1000
-
-        scheduleExact(context, alarmManager, contestId, contestName, platform, startOfDay, type = 1)
-        scheduleExact(context, alarmManager, contestId, contestName, platform, oneHourBefore, type = 2)
-    }
-
-    private fun scheduleExact(
-        context: Context,
-        alarmManager: AlarmManager,
-        contestId: Int,        // ← use ID instead of name
-        contestName: String,
-        platform: String,
-        triggerAt: Long,
-        type: Int
-    ) {
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             putExtra("name", contestName)
             putExtra("platform", platform)
-            putExtra("type", type)
+            putExtra("offsetLabel", offsetLabel)
         }
 
-        // ← FIXED: use contestId * 10 + type — guaranteed unique, no collision
-        val requestCode = contestId * 10 + type
+        val requestCode = contestId * 10 + 1   // one alarm per contest
 
         val pendingIntent = PendingIntent.getBroadcast(
             context,
@@ -63,13 +44,37 @@ object ReminderScheduler {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
             !alarmManager.canScheduleExactAlarms()
         ) {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+            alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTime, pendingIntent)
         } else {
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
-                triggerAt,
+                reminderTime,
                 pendingIntent
             )
         }
+    }
+
+    /**
+     * Cancel any scheduled reminder for this contest.
+     */
+    fun cancel(
+        context: Context,
+        contestId: Int
+    ) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        val intent = Intent(context, ReminderReceiver::class.java)
+        val requestCode = contestId * 10 + 1
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_NO_CREATE or
+                    if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_IMMUTABLE else 0
+        ) ?: return   // already cancelled / never set
+
+        alarmManager.cancel(pendingIntent)
+        pendingIntent.cancel()
     }
 }

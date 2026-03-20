@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface dao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertContest(contest: ContestEntity)
+    suspend fun insertContest(contest: ContestEntity): Long   // ← returns real inserted ID
 
     @Delete
     suspend fun deleteContest(contest: ContestEntity)
@@ -27,19 +27,15 @@ interface dao {
     @Query("DELETE FROM contests")
     suspend fun clearAll()
 
-    // ← NEW: fetch only API contests (for refresh without deleting manual ones)
     @Query("DELETE FROM contests WHERE isManual = 0")
     suspend fun clearApiContests()
 
-    // ← NEW: get bookmarked contests only
     @Query("SELECT * FROM contests WHERE isBookmarked = 1 ORDER BY startTimeMillis ASC")
     fun getBookmarkedContests(): Flow<List<ContestEntity>>
 
-    // ← NEW: search by name or platform
     @Query("SELECT * FROM contests WHERE name LIKE '%' || :query || '%' OR platform LIKE '%' || :query || '%' ORDER BY startTimeMillis ASC")
     fun searchContests(query: String): Flow<List<ContestEntity>>
 
-    // ← NEW: get contests by platform
     @Query("SELECT * FROM contests WHERE platform = :platform ORDER BY startTimeMillis ASC")
     fun getContestsByPlatform(platform: String): Flow<List<ContestEntity>>
 }

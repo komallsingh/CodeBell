@@ -388,7 +388,7 @@ fun ViewAllScreen(navController: NavController) {
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(filtered, key = { it.id }) { contest ->
-                            ContestCard(contest, viewModel)
+                            ContestListCard(contest, viewModel)
                         }
                     }
                 }
@@ -397,10 +397,22 @@ fun ViewAllScreen(navController: NavController) {
     }
 
     if (showAddSheet) {
+        val context = androidx.compose.ui.platform.LocalContext.current
         AddContestBottomSheet(
             onDismiss = { showAddSheet = false },
-            onSave = {
-                viewModel.insertContest(it)
+            onSave = { entity ->
+                viewModel.insertContest(entity) { realId ->
+                    if (entity.reminderEnabled && entity.reminderTimeMillis > System.currentTimeMillis()) {
+                        com.komal.myapplication.reminder.ReminderScheduler.schedule(
+                            context      = context,
+                            contestId    = realId.toInt(),
+                            contestName  = entity.name,
+                            platform     = entity.platform,
+                            reminderTime = entity.reminderTimeMillis,
+                            offsetLabel  = "30 Mins Before"
+                        )
+                    }
+                }
                 showAddSheet = false
             }
         )
