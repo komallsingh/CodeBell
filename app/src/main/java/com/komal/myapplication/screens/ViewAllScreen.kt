@@ -14,9 +14,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,10 +61,13 @@ fun ViewAllScreen(navController: NavController) {
         set(Calendar.HOUR_OF_DAY, 23); set(Calendar.MINUTE, 59)
     }.timeInMillis
 
-    val endOfMonth = Calendar.getInstance().apply {
-        set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
-        set(Calendar.HOUR_OF_DAY, 23); set(Calendar.MINUTE, 59)
-    }.timeInMillis
+    val endOfMonth = Calendar.getInstance().let { cal ->
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
+        cal.set(Calendar.HOUR_OF_DAY, 23)
+        cal.set(Calendar.MINUTE, 59)
+        cal.set(Calendar.SECOND, 59)
+        cal.timeInMillis
+    }
 
     val filtered = contests
         .filter { it.startTimeMillis > now }
@@ -83,15 +88,20 @@ fun ViewAllScreen(navController: NavController) {
         .sortedBy { it.startTimeMillis }
 
     var showAddSheet by remember { mutableStateOf(false) }
+    val hasActiveFilters = selectedPlatform != "All" ||
+            selectedDateFilter != DateFilter.ALL ||
+            search.isNotBlank()
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddSheet = true },
-                containerColor = Color(0xFF2563EB),
-                shape = RoundedCornerShape(16.dp)
+                containerColor = AppTheme.AccentBlue,
+                contentColor = Color.White,
+                shape = RoundedCornerShape(16.dp),
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp)
             ) {
-                Icon(Icons.Default.Add, null, tint = Color.White)
+                Icon(Icons.Default.Add, null)
             }
         },
         containerColor = Color.Transparent
@@ -99,95 +109,130 @@ fun ViewAllScreen(navController: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color(0xFF0A1628), Color(0xFF020817))
-                    )
-                )
+                .background(AppTheme.GradientBg)
         ) {
             Column(
                 modifier = Modifier
                     .padding(padding)
                     .fillMaxSize()
             ) {
-                // ── Header ──
+                // ── Header ──────────────────────────────────────────────────
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = { navController.popBackStack() },
+                    Box(
                         modifier = Modifier
                             .size(40.dp)
-                            .background(Color(0xFF0F172A), CircleShape)
+                            .background(AppTheme.BgCard, CircleShape)
+                            .drawBehind {
+                                drawCircle(
+                                    color = AppTheme.BorderSubtle,
+                                    radius = size.minDimension / 2f,
+                                    style = Stroke(1f)
+                                )
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            null,
-                            tint = Color.White,
-                            modifier = Modifier.size(18.dp)
-                        )
+                        IconButton(
+                            onClick = { navController.popBackStack() },
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.ArrowBack,
+                                null,
+                                tint = AppTheme.TextPrimary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     }
                     Spacer(Modifier.width(14.dp))
                     Column {
                         Text(
-                            "CONTESTS",
-                            color = Color(0xFF64748B),
+                            "ALL CONTESTS",
+                            color = AppTheme.AccentBlue.copy(alpha = 0.75f),
                             fontSize = 10.sp,
                             letterSpacing = 2.sp,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Bold
                         )
                         Text(
                             "Upcoming",
-                            color = Color.White,
+                            color = AppTheme.TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp
                         )
                     }
+                    Spacer(Modifier.weight(1f))
+                    Box(
+                        modifier = Modifier
+                            .background(AppTheme.BgCard, RoundedCornerShape(8.dp))
+                            .drawBehind {
+                                drawRoundRect(
+                                    color = AppTheme.BorderSubtle,
+                                    cornerRadius = CornerRadius(8.dp.toPx()),
+                                    style = Stroke(1f)
+                                )
+                            }
+                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                    ) {
+                        Text(
+                            "${filtered.size}",
+                            color = AppTheme.AccentBlue,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
 
-                // ── Search ──
+                // ── Search ───────────────────────────────────────────────────
                 OutlinedTextField(
                     value = search,
                     onValueChange = { search = it },
                     leadingIcon = {
-                        Icon(
-                            Icons.Default.Search,
-                            null,
-                            modifier = Modifier.size(18.dp)
-                        )
+                        Icon(Icons.Default.Search, null, modifier = Modifier.size(18.dp))
                     },
-                    placeholder = { Text("Search contests...", fontSize = 14.sp) },
+                    trailingIcon = {
+                        if (search.isNotBlank()) {
+                            IconButton(onClick = { search = "" }) {
+                                Icon(
+                                    Icons.Default.Clear, null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = AppTheme.TextMuted
+                                )
+                            }
+                        }
+                    },
+                    placeholder = { Text("Search contests or platforms…", fontSize = 14.sp) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     shape = RoundedCornerShape(14.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF3B82F6),
-                        unfocusedBorderColor = Color(0xFF1E293B),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        cursorColor = Color(0xFF3B82F6),
-                        focusedLeadingIconColor = Color(0xFF3B82F6),
-                        unfocusedLeadingIconColor = Color(0xFF475569),
-                        focusedPlaceholderColor = Color(0xFF475569),
-                        unfocusedPlaceholderColor = Color(0xFF334155),
-                        focusedContainerColor = Color(0xFF0F172A),
-                        unfocusedContainerColor = Color(0xFF0F172A)
+                        focusedBorderColor = AppTheme.AccentBlue,
+                        unfocusedBorderColor = AppTheme.BorderSubtle,
+                        focusedTextColor = AppTheme.TextPrimary,
+                        unfocusedTextColor = AppTheme.TextPrimary,
+                        cursorColor = AppTheme.AccentBlue,
+                        focusedLeadingIconColor = AppTheme.AccentBlue,
+                        unfocusedLeadingIconColor = AppTheme.TextMuted,
+                        focusedPlaceholderColor = AppTheme.TextMuted,
+                        unfocusedPlaceholderColor = AppTheme.TextMuted,
+                        focusedContainerColor = AppTheme.BgCard,
+                        unfocusedContainerColor = AppTheme.BgCard
                     )
                 )
 
                 Spacer(Modifier.height(16.dp))
 
-                // ── Date Filters ──
+                // ── Date Filters ─────────────────────────────────────────────
                 Text(
-                    "FILTER BY DATE",
-                    color = Color(0xFF475569),
+                    "DATE",
+                    color = AppTheme.TextMuted,
                     fontSize = 10.sp,
-                    letterSpacing = 1.5.sp,
-                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 1.8.sp,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 Spacer(Modifier.height(8.dp))
@@ -198,27 +243,27 @@ fun ViewAllScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     DateFilter.entries.forEach { filter ->
+                        val isSelected = selectedDateFilter == filter
                         FilterChip(
-                            selected = selectedDateFilter == filter,
+                            selected = isSelected,
                             onClick = { selectedDateFilter = filter },
                             label = {
                                 Text(
                                     filter.label,
                                     fontSize = 12.sp,
-                                    fontWeight = if (selectedDateFilter == filter)
-                                        FontWeight.SemiBold else FontWeight.Normal
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
                                 )
                             },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF2563EB),
+                                selectedContainerColor = AppTheme.AccentBlue,
                                 selectedLabelColor = Color.White,
-                                labelColor = Color(0xFF64748B),
-                                containerColor = Color(0xFF0F172A)
+                                labelColor = AppTheme.TextSecondary,
+                                containerColor = AppTheme.BgCard
                             ),
                             border = FilterChipDefaults.filterChipBorder(
                                 enabled = true,
-                                selected = selectedDateFilter == filter,
-                                borderColor = Color(0xFF1E293B),
+                                selected = isSelected,
+                                borderColor = AppTheme.BorderSubtle,
                                 selectedBorderColor = Color.Transparent
                             )
                         )
@@ -227,13 +272,13 @@ fun ViewAllScreen(navController: NavController) {
 
                 Spacer(Modifier.height(12.dp))
 
-                // ── Platform Filters ──
+                // ── Platform Filters ─────────────────────────────────────────
                 Text(
-                    "FILTER BY PLATFORM",
-                    color = Color(0xFF475569),
+                    "PLATFORM",
+                    color = AppTheme.TextMuted,
                     fontSize = 10.sp,
-                    letterSpacing = 1.5.sp,
-                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 1.8.sp,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 Spacer(Modifier.height(8.dp))
@@ -244,30 +289,28 @@ fun ViewAllScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     platforms.forEach { platform ->
-                        val pColor = if (platform == "All") Color(0xFF3B82F6)
-                        else Color(0xFF2563EB)
+                        val isSelected = selectedPlatform == platform
                         FilterChip(
-                            selected = selectedPlatform == platform,
+                            selected = isSelected,
                             onClick = { selectedPlatform = platform },
                             label = {
                                 Text(
                                     platform,
                                     fontSize = 12.sp,
-                                    fontWeight = if (selectedPlatform == platform)
-                                        FontWeight.SemiBold else FontWeight.Normal
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
                                 )
                             },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = pColor.copy(alpha = 0.2f),
-                                selectedLabelColor = pColor,
-                                labelColor = Color(0xFF64748B),
-                                containerColor = Color(0xFF0F172A)
+                                selectedContainerColor = AppTheme.AccentBlue.copy(alpha = 0.18f),
+                                selectedLabelColor = AppTheme.AccentBlue,
+                                labelColor = AppTheme.TextSecondary,
+                                containerColor = AppTheme.BgCard
                             ),
                             border = FilterChipDefaults.filterChipBorder(
                                 enabled = true,
-                                selected = selectedPlatform == platform,
-                                borderColor = Color(0xFF1E293B),
-                                selectedBorderColor = pColor.copy(alpha = 0.5f)
+                                selected = isSelected,
+                                borderColor = AppTheme.BorderSubtle,
+                                selectedBorderColor = AppTheme.AccentBlue.copy(alpha = 0.5f)
                             )
                         )
                     }
@@ -275,7 +318,7 @@ fun ViewAllScreen(navController: NavController) {
 
                 Spacer(Modifier.height(12.dp))
 
-                // ── Results count + clear ──
+                // ── Results bar ──────────────────────────────────────────────
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -284,15 +327,12 @@ fun ViewAllScreen(navController: NavController) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "${filtered.size} contests found",
-                        color = Color(0xFF475569),
+                        "${filtered.size} contest${if (filtered.size != 1) "s" else ""} found",
+                        color = AppTheme.TextMuted,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium
                     )
-                    if (selectedPlatform != "All" ||
-                        selectedDateFilter != DateFilter.ALL ||
-                        search.isNotBlank()
-                    ) {
+                    if (hasActiveFilters) {
                         TextButton(
                             onClick = {
                                 selectedPlatform = "All"
@@ -301,39 +341,50 @@ fun ViewAllScreen(navController: NavController) {
                             },
                             contentPadding = PaddingValues(horizontal = 8.dp)
                         ) {
-                            Text(
-                                "Clear filters",
-                                color = Color(0xFF3B82F6),
-                                fontSize = 12.sp
+                            Icon(
+                                Icons.Default.FilterAltOff, null,
+                                modifier = Modifier.size(14.dp),
+                                tint = AppTheme.AccentBlue
                             )
+                            Spacer(Modifier.width(4.dp))
+                            Text("Clear", color = AppTheme.AccentBlue, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .padding(horizontal = 16.dp)
+                        .background(AppTheme.BorderSubtle)
+                )
+                Spacer(Modifier.height(4.dp))
 
-                // ── Contest list ──
+                // ── Contest list ─────────────────────────────────────────────
                 if (filtered.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("🔍", fontSize = 32.sp)
+                            Text("🔍", fontSize = 36.sp)
                             Spacer(Modifier.height(12.dp))
                             Text(
                                 "No contests match your filters",
-                                color = Color(0xFF334155),
+                                color = AppTheme.TextMuted,
                                 fontSize = 14.sp
                             )
+                            if (hasActiveFilters) {
+                                Spacer(Modifier.height(6.dp))
+                                Text(
+                                    "Try clearing some filters",
+                                    color = AppTheme.TextMuted.copy(alpha = 0.6f),
+                                    fontSize = 12.sp
+                                )
+                            }
                         }
                     }
                 } else {
                     LazyColumn(
-                        contentPadding = PaddingValues(
-                            horizontal = 16.dp,
-                            vertical = 8.dp
-                        ),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(filtered, key = { it.id }) { contest ->

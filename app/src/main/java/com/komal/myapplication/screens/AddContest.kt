@@ -32,7 +32,6 @@ fun AddContestBottomSheet(
     var showDateSheet by remember { mutableStateOf(false) }
 
     val dateFormat = SimpleDateFormat("MMM dd, yyyy  hh:mm a", Locale.getDefault())
-
     val textFieldColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = Color(0xFF3B82F6),
         unfocusedBorderColor = Color(0xFF1E293B),
@@ -46,7 +45,6 @@ fun AddContestBottomSheet(
         focusedContainerColor = Color(0xFF0A1628),
         unfocusedContainerColor = Color(0xFF0A1628)
     )
-
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = Color.Transparent,
@@ -258,11 +256,9 @@ fun AddContestBottomSheet(
                     )
                 }
             }
-
             Spacer(Modifier.height(16.dp))
         }
     }
-
     if (showDateSheet) {
         DateTimePickerSheet(
             onDismiss = { showDateSheet = false },

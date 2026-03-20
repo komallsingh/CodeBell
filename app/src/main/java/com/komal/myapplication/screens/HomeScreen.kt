@@ -14,8 +14,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -76,11 +79,7 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(Color(0xFF0A1628), Color(0xFF020817))
-                )
-            )
+            .background(AppTheme.GradientBg)
     ) {
         Column(
             modifier = Modifier
@@ -90,7 +89,7 @@ fun HomeScreen(
         ) {
             Spacer(Modifier.height(56.dp))
 
-            // ── Top Bar ──
+            // ── Top Bar ─────────────────────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -99,13 +98,8 @@ fun HomeScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
-                            .background(
-                                Brush.linearGradient(
-                                    listOf(Color(0xFF3B82F6), Color(0xFF1D4ED8))
-                                ),
-                                CircleShape
-                            ),
+                            .size(42.dp)
+                            .background(AppTheme.GradientButton, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -119,66 +113,86 @@ fun HomeScreen(
                     Column {
                         Text(
                             text = "ContestTracker",
-                            color = Color.White,
+                            color = AppTheme.TextPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.3.sp
                         )
                         Text(
                             text = "Stay ahead of the game",
-                            color = Color(0xFF64748B),
+                            color = AppTheme.TextMuted,
                             fontSize = 11.sp
                         )
                     }
                 }
-                IconButton(
-                    onClick = { navController.navigate("view all") },
+                Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .background(Color(0xFF0F172A), CircleShape)
+                        .size(42.dp)
+                        .background(AppTheme.BgCard, CircleShape)
+                        .drawBehind {
+                            drawCircle(
+                                color = AppTheme.BorderSubtle,
+                                radius = size.minDimension / 2f,
+                                style = Stroke(1f)
+                            )
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null,
-                        tint = Color(0xFF94A3B8),
-                        modifier = Modifier.size(18.dp)
-                    )
+                    IconButton(
+                        onClick = { navController.navigate("view all") },
+                        modifier = Modifier.size(42.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            tint = AppTheme.TextSecondary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
 
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(24.dp))
 
-            // ── Fetch progress ──
+            // ── Fetch progress ───────────────────────────────────────────────
             if (isFetching) {
                 LinearProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(2.dp)
                         .clip(RoundedCornerShape(1.dp)),
-                    color = Color(0xFF3B82F6),
-                    trackColor = Color(0xFF1E293B)
+                    color = AppTheme.AccentBlue,
+                    trackColor = AppTheme.BorderSubtle
                 )
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(14.dp))
             }
 
-            // ── Date label ──
+            // ── Date label ──────────────────────────────────────────────────
             val todayLabel = SimpleDateFormat("EEEE, dd MMM yyyy", Locale.getDefault()).format(Date())
             Row(
                 modifier = Modifier
-                    .background(Color(0xFF0F172A), RoundedCornerShape(8.dp))
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                    .background(AppTheme.BgCard, RoundedCornerShape(8.dp))
+                    .drawBehind {
+                        drawRoundRect(
+                            color = AppTheme.BorderSubtle,
+                            cornerRadius = CornerRadius(8.dp.toPx()),
+                            style = Stroke(1f)
+                        )
+                    }
+                    .padding(horizontal = 12.dp, vertical = 7.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "📅  $todayLabel",
-                    color = Color(0xFF64748B),
+                    color = AppTheme.TextSecondary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(24.dp))
 
-            // ── Section header ──
+            // ── Section header ───────────────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -186,15 +200,15 @@ fun HomeScreen(
             ) {
                 Column {
                     Text(
-                        text = "Next Contest",
-                        color = Color(0xFF94A3B8),
-                        fontSize = 12.sp,
-                        letterSpacing = 1.sp,
-                        fontWeight = FontWeight.Medium
+                        text = "NEXT CONTEST",
+                        color = AppTheme.AccentBlue.copy(alpha = 0.75f),
+                        fontSize = 10.sp,
+                        letterSpacing = 2.sp,
+                        fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "Coming Up",
-                        color = Color.White,
+                        color = AppTheme.TextPrimary,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -203,18 +217,16 @@ fun HomeScreen(
                     TextButton(
                         onClick = { navController.navigate("view all") },
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = Color(0xFF3B82F6)
-                        )
+                        colors = ButtonDefaults.textButtonColors(contentColor = AppTheme.AccentBlue)
                     ) {
                         Text("View All →", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(14.dp))
 
-            // ── Next contest card ──
+            // ── Next contest card ────────────────────────────────────────────
             if (nextContest != null) {
                 ContestCard(nextContest, remainingTime)
             } else {
@@ -222,24 +234,27 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp)
-                        .background(Color(0xFF0F172A), RoundedCornerShape(20.dp)),
+                        .background(AppTheme.BgCard, RoundedCornerShape(20.dp))
+                        .drawBehind {
+                            drawRoundRect(
+                                color = AppTheme.BorderSubtle,
+                                cornerRadius = CornerRadius(20.dp.toPx()),
+                                style = Stroke(1f)
+                            )
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("🎯", fontSize = 28.sp)
                         Spacer(Modifier.height(8.dp))
-                        Text(
-                            "No upcoming contests",
-                            color = Color(0xFF475569),
-                            fontSize = 14.sp
-                        )
+                        Text("No upcoming contests", color = AppTheme.TextMuted, fontSize = 14.sp)
                     }
                 }
             }
 
             Spacer(Modifier.height(28.dp))
 
-            // ── Upcoming section ──
+            // ── Also Coming Up ───────────────────────────────────────────────
             val upcomingTwo = nearestContests.drop(1)
             if (upcomingTwo.isNotEmpty()) {
                 Row(
@@ -249,15 +264,22 @@ fun HomeScreen(
                 ) {
                     Text(
                         text = "Also Coming Up",
-                        color = Color.White,
+                        color = AppTheme.TextPrimary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Text(
-                        text = "${upcomingTwo.size} contests",
-                        color = Color(0xFF475569),
-                        fontSize = 12.sp
-                    )
+                    Box(
+                        modifier = Modifier
+                            .background(AppTheme.BgCard, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    ) {
+                        Text(
+                            text = "${upcomingTwo.size} contests",
+                            color = AppTheme.AccentBlue,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
 
                 Spacer(Modifier.height(12.dp))
@@ -286,32 +308,26 @@ fun HomeScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // ── Explore button ──
+            // ── Explore button ───────────────────────────────────────────────
             Button(
                 onClick = { navController.navigate("view all") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
                 shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF0F172A)
-                ),
-                border = androidx.compose.foundation.BorderStroke(
-                    1.dp,
-                    Brush.horizontalGradient(
-                        listOf(Color(0xFF1E3A5F), Color(0xFF1E293B))
-                    )
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                border = androidx.compose.foundation.BorderStroke(1.dp, AppTheme.BorderSubtle),
+                elevation = ButtonDefaults.buttonElevation(0.dp)
             ) {
                 Text(
                     "Explore All Contests →",
-                    color = Color(0xFF94A3B8),
+                    color = AppTheme.TextSecondary,
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp
                 )
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(28.dp))
         }
     }
 }
