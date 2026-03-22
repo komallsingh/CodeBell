@@ -32,7 +32,7 @@ fun AddContestBottomSheet(
     var name            by remember { mutableStateOf(contest?.name ?: "") }
     var platform        by remember { mutableStateOf(contest?.platform ?: "") }
     var timeMillis      by remember { mutableStateOf(contest?.startTimeMillis) }
-    var reminderEnabled by remember { mutableStateOf(contest?.reminderEnabled ?: true) }
+    var reminderOffset  by remember { mutableStateOf(30) }   // default 30 mins
     var showDateSheet   by remember { mutableStateOf(false) }
 
     val dateFormat = SimpleDateFormat("MMM dd, yyyy  hh:mm a", Locale.getDefault())
@@ -142,57 +142,79 @@ fun AddContestBottomSheet(
 
             Spacer(Modifier.height(16.dp))
 
-            // ── Reminder toggle ──────────────────────────────────────────────
+            // ── Reminder offset selector (no toggle — always on) ─────────────
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(AppTheme.BgCard, RoundedCornerShape(12.dp))
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .padding(horizontal = 16.dp, vertical = 14.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier          = Modifier.fillMaxWidth()
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .background(
-                                AppTheme.AccentBlue.copy(alpha = 0.15f),
-                                RoundedCornerShape(10.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.Notifications,
-                            contentDescription = null,
-                            tint     = AppTheme.AccentBlue,
-                            modifier = Modifier.size(18.dp)
-                        )
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(
+                                    AppTheme.AccentBlue.copy(alpha = 0.15f),
+                                    RoundedCornerShape(8.dp)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Notifications,
+                                contentDescription = null,
+                                tint     = AppTheme.AccentBlue,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        Spacer(Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                "Remind me before",
+                                color      = AppTheme.TextPrimary,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize   = 13.sp
+                            )
+                            Text(
+                                "Tap to choose when",
+                                color    = AppTheme.TextMuted,
+                                fontSize = 11.sp
+                            )
+                        }
                     }
-                    Spacer(Modifier.width(12.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            "Set Reminder",
-                            color      = AppTheme.TextPrimary,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize   = 14.sp
-                        )
-                        Text(
-                            "Notify 30 minutes before",
-                            color    = AppTheme.TextMuted,
-                            fontSize = 11.sp
-                        )
+                    Spacer(Modifier.height(12.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf(
+                            1440 to "Start of Day",
+                            60   to "1 Hr Before",
+                            30   to "30 Min Before"
+                        ).forEach { (offset, label) ->
+                            val isSelected = reminderOffset == offset
+                            FilterChip(
+                                selected = isSelected,
+                                onClick  = { reminderOffset = offset },
+                                label    = {
+                                    Text(
+                                        label,
+                                        fontSize   = 11.sp,
+                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                                    )
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = AppTheme.AccentBlue,
+                                    selectedLabelColor     = Color.White,
+                                    labelColor             = AppTheme.TextSecondary,
+                                    containerColor         = AppTheme.BgSurface
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled             = true,
+                                    selected            = isSelected,
+                                    borderColor         = AppTheme.BorderSubtle,
+                                    selectedBorderColor = Color.Transparent
+                                )
+                            )
+                        }
                     }
-                    Switch(
-                        checked         = reminderEnabled,
-                        onCheckedChange = { reminderEnabled = it },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor   = Color.White,
-                            checkedTrackColor   = AppTheme.AccentBlue,
-                            uncheckedThumbColor = AppTheme.TextMuted,
-                            uncheckedTrackColor = AppTheme.BorderSubtle
-                        )
-                    )
                 }
             }
 
@@ -218,31 +240,19 @@ fun AddContestBottomSheet(
                         val t = timeMillis ?: return@Button
                         if (name.isBlank() || platform.isBlank()) return@Button
 
-                        // 30-min offset for the quick-add reminder
-                        val reminderTime = if (reminderEnabled) t - 30L * 60L * 1000L else 0L
+                        val offsetMillis = reminderOffset * 60 * 1000L
+                        val reminderTime = t - offsetMillis
 
                         val entity = ContestEntity(
                             id                 = contest?.id ?: 0,
                             name               = name.trim(),
                             platform           = platform.trim(),
                             startTimeMillis    = t,
-                            reminderEnabled    = reminderEnabled,
+                            reminderEnabled    = true,             // always on
                             reminderTimeMillis = reminderTime,
                             isManual           = true,
                             isBookmarked       = false
                         )
-
-                        // actually schedule the alarm if toggle is on
-                        if (reminderEnabled && reminderTime > System.currentTimeMillis()) {
-                            ReminderScheduler.schedule(
-                                context      = context,
-                                contestId    = entity.id.takeIf { it != 0 } ?: name.hashCode(),
-                                contestName  = entity.name,
-                                platform     = entity.platform,
-                                reminderTime = reminderTime,
-                                offsetLabel  = "30 Mins Before"
-                            )
-                        }
 
                         onSave(entity)
                         onDismiss()

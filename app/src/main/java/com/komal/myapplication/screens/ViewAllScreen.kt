@@ -403,13 +403,19 @@ fun ViewAllScreen(navController: NavController) {
             onSave = { entity ->
                 viewModel.insertContest(entity) { realId ->
                     if (entity.reminderEnabled && entity.reminderTimeMillis > System.currentTimeMillis()) {
+                        val offsetMs = entity.startTimeMillis - entity.reminderTimeMillis
+                        val label = when {
+                            offsetMs >= 23 * 60 * 60 * 1000L -> "Start of Day"
+                            offsetMs >= 55 * 60 * 1000L      -> "1 Hour Before"
+                            else                              -> "30 Mins Before"
+                        }
                         com.komal.myapplication.reminder.ReminderScheduler.schedule(
                             context      = context,
                             contestId    = realId.toInt(),
                             contestName  = entity.name,
                             platform     = entity.platform,
                             reminderTime = entity.reminderTimeMillis,
-                            offsetLabel  = "30 Mins Before"
+                            offsetLabel  = label
                         )
                     }
                 }

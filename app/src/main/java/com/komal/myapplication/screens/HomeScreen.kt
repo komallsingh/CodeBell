@@ -89,7 +89,7 @@ fun HomeScreen(
         ) {
             Spacer(Modifier.height(56.dp))
 
-            // ── Top Bar ─────────────────────────────────────────────────────
+            // Top Bar
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -154,7 +154,7 @@ fun HomeScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // ── Fetch progress ───────────────────────────────────────────────
+            //Fetch progress
             if (isFetching) {
                 LinearProgressIndicator(
                     modifier = Modifier
@@ -167,7 +167,7 @@ fun HomeScreen(
                 Spacer(Modifier.height(14.dp))
             }
 
-            // ── Date label ──────────────────────────────────────────────────
+            //Date label
             val todayLabel = SimpleDateFormat("EEEE, dd MMM yyyy", Locale.getDefault()).format(Date())
             Row(
                 modifier = Modifier
@@ -192,7 +192,7 @@ fun HomeScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // ── Section header ───────────────────────────────────────────────
+            //Section header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -226,7 +226,7 @@ fun HomeScreen(
 
             Spacer(Modifier.height(14.dp))
 
-            // ── Next contest card ────────────────────────────────────────────
+            // Next contest card
             if (nextContest != null) {
                 ContestCard(nextContest, remainingTime)
             } else {
@@ -254,7 +254,7 @@ fun HomeScreen(
 
             Spacer(Modifier.height(28.dp))
 
-            // ── Also Coming Up ───────────────────────────────────────────────
+            // Also Coming Up
             val upcomingTwo = nearestContests.drop(1)
             if (upcomingTwo.isNotEmpty()) {
                 Row(
@@ -295,12 +295,9 @@ fun HomeScreen(
                         }
                     }
                     UpcomingItem(
-                        title = contest.name,
-                        subtitle = "${contest.platform} • ${
-                            SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault())
-                                .format(Date(contest.startTimeMillis))
-                        }",
-                        remainingTime = timeLeft
+                        contest       = contest,
+                        remainingTime = timeLeft,
+                        viewModel     = viewModel
                     )
                     Spacer(Modifier.height(8.dp))
                 }
@@ -308,7 +305,7 @@ fun HomeScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // ── Explore button ───────────────────────────────────────────────
+            // Explore button
             Button(
                 onClick = { navController.navigate("view all") },
                 modifier = Modifier
