@@ -1,81 +1,114 @@
-# CodeBell
+# 🔔💻 CodeBell  
 
-A clean, minimal Android app to track upcoming competitive programming contests — with smart reminders so you never miss one.
+![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)
+![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
+![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)
+![Room](https://img.shields.io/badge/Room-FF6F00?style=for-the-badge&logo=android&logoColor=white)
 
----
-
-## Features
-
-- Fetches live contests from **Codeforces**, **LeetCode**, and **CodeChef**
-- Real-time countdown timer to the next contest
-- Set reminders — 30 minutes, 1 hour, or start of day before any contest
-- Add and track manual contests with a custom date & time picker
-- Filter by platform or date range — Today, This Week, This Month
-- Search contests by name or platform
-- Full reminder management — set, change, or cancel from the contest card
-- All data stored locally — works offline after first fetch
+> 🚀 Never miss a coding contest again. Track, filter, and get reminded — all in one place.
 
 ---
 
-## Tech Stack
+## 📌 What is CodeBell?
 
-- **Language** — Kotlin
-- **UI** — Jetpack Compose + Material 3
-- **Architecture** — MVVM (ViewModel + StateFlow)
-- **Database** — Room
-- **Networking** — Retrofit + OkHttp
-- **Notifications** — AlarmManager + BroadcastReceiver
-- **Navigation** — Jetpack Navigation Compose
-- **Async** — Kotlin Coroutines
+Keeping up with contests across platforms like Codeforces, LeetCode, and CodeChef can be messy.  
 
----
+**CodeBell** simplifies everything by:
+- 📡 Bringing all contests into one clean feed  
+- ⏳ Showing a live countdown  
+- 🔔 Letting you set smart reminders  
 
-## How It Works
-
-**Contest Fetching**
-On launch the app hits the Codeforces, LeetCode, and CodeChef public APIs, clears stale API data, and re-inserts fresh results into Room. Manual contests are never affected by this refresh.
-
-**Reminders**
-Uses `AlarmManager.setExactAndAllowWhileIdle()` to fire precise notifications even in Doze mode. Each alarm is keyed by `contestId` so there are no collisions. Cancelling a reminder removes the pending intent and clears the flag in the database.
-
-**Manual Contests**
-Added via a bottom sheet — name, platform, date/time, and reminder offset. Room returns the real auto-generated ID after insert, which is used immediately to schedule the alarm.
+No more missed contests. No more switching apps.
 
 ---
 
-## Screens
+## ✨ Features
 
-| Screen | Description |
-|--------|-------------|
-| Welcome | Onboarding |
-| Home | Next contest countdown + also coming up list |
-| All Contests | Full list with search and filters |
-| Add Contest | Bottom sheet to add a manual contest |
+- 📡 **Live Contest Feed**  
+  Auto-fetches upcoming contests from multiple platforms on launch  
+
+- ⏳ **Real-time Countdown**  
+  See exactly how much time is left for your next contest  
+
+- 🔔 **Smart Reminders**  
+  Get notified:
+  - 30 minutes before  
+  - 1 hour before  
+  - 1 day before  
+
+- ➕ **Manual Contests**  
+  Add your own college or private contests easily  
+
+- 🔍 **Filter & Search**  
+  Find contests by platform, name, or date  
+
+- 🛠 **Reminder Management**  
+  Update or cancel reminders directly from the UI  
+
+- 📶 **Offline Support**  
+  Works without internet after first fetch  
 
 ---
 
-## Getting Started
+## 🧠 Tech Stack
+
+| ⚙️ Category | 🚀 Tech |
+|------------|--------|
+| Language | Kotlin |
+| UI | Jetpack Compose + Material 3 |
+| Architecture | MVVM |
+| Database | Room |
+| Networking | Retrofit + OkHttp |
+| Notifications | AlarmManager + BroadcastReceiver |
+| State | ViewModel + StateFlow |
+| Navigation | Jetpack Navigation Compose |
+| Async | Kotlin Coroutines |
+
+---
+
+## ⚙️ How It Works
+
+### 📡 Contest Fetching
+- Fetches data from Codeforces, LeetCode, and CodeChef APIs  
+- No API keys required  
+- API contests are refreshed every launch  
+- Manual contests stay safe 😄  
+
+---
+
+### 🔔 Reminders
+- Uses `AlarmManager.setExactAndAllowWhileIdle()`  
+- Works even in Doze mode ⚡  
+- Each reminder is uniquely tied to a contest ID  
+- Cancelling removes both alarm + DB flag  
+
+---
+
+### ➕ Adding Manual Contests
+- Bottom sheet input UI  
+- Fields:
+  - Contest name  
+  - Platform  
+  - Date & Time  
+  - Reminder offset  
+
+- Room generates ID → used instantly for alarm scheduling  
+- 🚫 No race conditions  
+
+---
+
+## 📱 Screens
+
+| 📺 Screen | 📝 Description |
+|----------|---------------|
+| 👋 Welcome | Onboarding screen |
+| 🏠 Home | Countdown + upcoming contests |
+| 📋 All Contests | Full list with filters & search |
+| ➕ Add Contest | Bottom sheet for adding contests |
+
+---
+
+## 🚀 Getting Started
 
 ```bash
-git clone https://github.com/yourusername/ContestTracker.git
-```
-
-Open in Android Studio, let Gradle sync, and run on any device or emulator with API 26+.
-
-No API keys required — all contest sources are public.
-
----
-
-## Permissions
-
-```
-POST_NOTIFICATIONS      — show reminder notifications (Android 13+)
-USE_EXACT_ALARM         — precise alarm scheduling
-INTERNET                — fetch contest data
-```
-
----
-
-## License
-
-MIT
+git clone https://github.com/komallsingh/CodeBell.git
