@@ -42,7 +42,7 @@ private val AmberYellow = Color(0xFFF59E0B)
 
 @Composable
 fun UpcomingItem(
-    contest: ContestEntity,              // ← pass full entity instead of strings
+    contest: ContestEntity,              //  pass full entity instead of strings
     remainingTime: Long = 0L,
     viewModel: ContestViewModel
 ) {
@@ -98,7 +98,7 @@ fun UpcomingItem(
                     )
                 }
 
-                // ── Bell icon — grey when off, amber when on ──────────────
+                // ── Bell icon — grey when off, amber when on
                 IconButton(
                     onClick = {
                         haptic.performHapticFeedback(

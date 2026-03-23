@@ -171,7 +171,7 @@ fun ContestActionsSheet(
                 Text("Save Reminder", fontWeight = FontWeight.SemiBold)
             }
 
-            // ── Cancel Reminder button (only shown when reminder is active) ──
+            //  Cancel Reminder button (only shown when reminder is active)
             if (contest.reminderEnabled) {
                 Spacer(Modifier.height(10.dp))
                 OutlinedButton(

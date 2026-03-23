@@ -69,7 +69,7 @@ fun WelcomeScreen(navController: NavController) {
         ) {
             Spacer(modifier = Modifier.height(210.dp))
 
-            // ── Logo badge ──────────────────────────────────────────────────
+            // Logo badge
             Box(
                 modifier = Modifier
                     .size(80.dp)

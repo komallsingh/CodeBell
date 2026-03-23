@@ -89,7 +89,7 @@ fun AddContestBottomSheet(
 
             Spacer(Modifier.height(20.dp))
 
-            // ── Contest Name ─────────────────────────────────────────────────
+            // Contest Name
             OutlinedTextField(
                 value         = name,
                 onValueChange = { name = it },
@@ -103,7 +103,7 @@ fun AddContestBottomSheet(
 
             Spacer(Modifier.height(12.dp))
 
-            // ── Platform ─────────────────────────────────────────────────────
+            //Platform
             OutlinedTextField(
                 value         = platform,
                 onValueChange = { platform = it },
@@ -117,7 +117,7 @@ fun AddContestBottomSheet(
 
             Spacer(Modifier.height(12.dp))
 
-            // ── Date & Time picker ───────────────────────────────────────────
+            // Date & Time picker
             OutlinedButton(
                 onClick = { showDateSheet = true },
                 modifier = Modifier
@@ -142,7 +142,7 @@ fun AddContestBottomSheet(
 
             Spacer(Modifier.height(16.dp))
 
-            // ── Reminder offset selector (no toggle — always on) ─────────────
+            // Reminder offset selector (no toggle — always on)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -220,7 +220,7 @@ fun AddContestBottomSheet(
 
             Spacer(Modifier.height(24.dp))
 
-            // ── Action buttons ───────────────────────────────────────────────
+            //Action buttons
             Row(
                 modifier              = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)

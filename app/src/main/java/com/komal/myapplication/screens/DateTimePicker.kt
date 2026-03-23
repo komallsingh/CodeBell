@@ -61,7 +61,7 @@ fun DateTimePickerSheet(
 
             Spacer(Modifier.height(22.dp))
 
-            // ── Date picker button ───────────────────────────────────────────
+            // Date picker button
             Button(
                 onClick = { showDatePicker = true },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
@@ -81,7 +81,7 @@ fun DateTimePickerSheet(
 
             Spacer(Modifier.height(10.dp))
 
-            // ── Time picker button ───────────────────────────────────────────
+            // Time picker button
             Button(
                 onClick = {
                     TimePickerDialog(
@@ -105,7 +105,7 @@ fun DateTimePickerSheet(
 
             Spacer(Modifier.height(24.dp))
 
-            // ── Confirm button ───────────────────────────────────────────────
+            // Confirm button
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

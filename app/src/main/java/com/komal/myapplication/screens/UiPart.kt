@@ -185,7 +185,7 @@ fun ContestCard(
 }
 
 
-// ── REUSABLE UI ───────────────────────────────────────────────────────────────
+//REUSABLE UI
 
 @Composable
 fun SheetHeader(title: String, onClose: () -> Unit) {

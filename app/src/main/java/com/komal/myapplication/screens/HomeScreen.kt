@@ -112,7 +112,7 @@ fun HomeScreen(
                     Spacer(Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "ContestTracker",
+                            text = "CodeBell",
                             color = AppTheme.TextPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,

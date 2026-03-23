@@ -116,7 +116,7 @@ fun ViewAllScreen(navController: NavController) {
                     .padding(padding)
                     .fillMaxSize()
             ) {
-                // ── Header ──────────────────────────────────────────────────
+                // Header
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -186,7 +186,7 @@ fun ViewAllScreen(navController: NavController) {
                     }
                 }
 
-                // ── Search ───────────────────────────────────────────────────
+                // Search
                 OutlinedTextField(
                     value = search,
                     onValueChange = { search = it },
@@ -226,7 +226,7 @@ fun ViewAllScreen(navController: NavController) {
 
                 Spacer(Modifier.height(16.dp))
 
-                // ── Date Filters ─────────────────────────────────────────────
+                // Date Filters
                 Text(
                     "DATE",
                     color = AppTheme.TextMuted,
@@ -272,7 +272,7 @@ fun ViewAllScreen(navController: NavController) {
 
                 Spacer(Modifier.height(12.dp))
 
-                // ── Platform Filters ─────────────────────────────────────────
+                //Platform Filters
                 Text(
                     "PLATFORM",
                     color = AppTheme.TextMuted,
@@ -318,7 +318,7 @@ fun ViewAllScreen(navController: NavController) {
 
                 Spacer(Modifier.height(12.dp))
 
-                // ── Results bar ──────────────────────────────────────────────
+                // Results bar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

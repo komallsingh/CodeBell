@@ -10,12 +10,18 @@ class Repo(private val dao: dao) {
     val contestSortedByStartTime: Flow<List<ContestEntity>> = dao.getAllContestsSortedByStartTime()
     val bookmarkedContests: Flow<List<ContestEntity>>        = dao.getBookmarkedContests()
 
-    // ← returns the real Room-assigned ID
+    // returns the real Room-assigned ID
     suspend fun insert(contest: ContestEntity): Long = dao.insertContest(contest)
 
-    suspend fun delete(contest: ContestEntity)  { dao.deleteContest(contest) }
-    suspend fun update(contest: ContestEntity)  { dao.updateContest(contest) }
-    suspend fun clearAll()                       { dao.clearAll() }
+    suspend fun delete(contest: ContestEntity)  {
+        dao.deleteContest(contest)
+    }
+    suspend fun update(contest: ContestEntity)  {
+        dao.updateContest(contest)
+    }
+    suspend fun clearAll(){
+        dao.clearAll()
+    }
 
     suspend fun fetchAndStoreApiContests() {
         dao.clearApiContests()
@@ -24,7 +30,7 @@ class Repo(private val dao: dao) {
         fetchLeetcode()
     }
 
-    // ── CODEFORCES ──────────────────────────────────────────────────────────
+    //CODEFORCES
     private suspend fun fetchCodeforces() {
         try {
             android.util.Log.d("FETCH_DEBUG", "Fetching Codeforces...")
@@ -56,7 +62,7 @@ class Repo(private val dao: dao) {
         }
     }
 
-    // ── CODECHEF ─────────────────────────────────────────────────────────────
+    //CODECHEF
     private suspend fun fetchCodechef() {
         try {
             android.util.Log.d("FETCH_DEBUG", "Fetching CodeChef...")
@@ -85,7 +91,7 @@ class Repo(private val dao: dao) {
         }
     }
 
-    // ── LEETCODE ──────────────────────────────────────────────────────────────
+    //LEETCODE
     private suspend fun fetchLeetcode() {
         try {
             android.util.Log.d("FETCH_DEBUG", "Fetching LeetCode...")
@@ -118,7 +124,7 @@ class Repo(private val dao: dao) {
         }
     }
 
-    // ── TIME PARSERS ──────────────────────────────────────────────────────────
+    // TIME PARSERS
     private fun parseCodechefTime(timeStr: String): Long {
         return try {
             val sdf = java.text.SimpleDateFormat(

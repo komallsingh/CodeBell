@@ -10,10 +10,10 @@ data class ContestEntity(
     val name: String,
     val platform: String,
     val startTimeMillis: Long,
-    val durationSeconds: Long = 0L,        // ← NEW: contest duration
-    val contestUrl: String = "",            // ← NEW: link to contest
+    val durationSeconds: Long = 0L,        // NEW: contest duration
+    val contestUrl: String = "",            // NEW: link to contest
     val reminderTimeMillis: Long = 0L,   // made nullable (was Long before)
     val reminderEnabled: Boolean = false,
-    val isManual: Boolean = true,           // ← NEW: false = fetched from API
-    val isBookmarked: Boolean = false       // ← NEW: user bookmarked it
+    val isManual: Boolean = true,           // NEW: false = fetched from API
+    val isBookmarked: Boolean = false       // NEW: user bookmarked it
 )

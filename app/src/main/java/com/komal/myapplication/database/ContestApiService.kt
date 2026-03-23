@@ -55,7 +55,7 @@ object RetrofitInstance {
 
     val codechef: CodechefApiService by lazy {
         Retrofit.Builder()
-            .baseUrl("https://www.codechef.com/")  // ← remove "api/"
+            .baseUrl("https://www.codechef.com/")  //  remove "api/"
             .client(buildClient())
             .addConverterFactory(GsonConverterFactory.create())
             .build()

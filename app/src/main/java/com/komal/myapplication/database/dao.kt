@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface dao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertContest(contest: ContestEntity): Long   // ← returns real inserted ID
+    suspend fun insertContest(contest: ContestEntity): Long   // returns real inserted ID
 
     @Delete
     suspend fun deleteContest(contest: ContestEntity)

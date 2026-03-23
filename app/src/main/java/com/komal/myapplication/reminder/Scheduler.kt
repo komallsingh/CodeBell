@@ -18,8 +18,8 @@ object ReminderScheduler {
         contestId: Int,
         contestName: String,
         platform: String,
-        reminderTime: Long,         // ← exact time to fire the alarm
-        offsetLabel: String = ""    // ← "1 Hour Before" etc., shown in notification
+        reminderTime: Long,         // exact time to fire the alarm
+        offsetLabel: String = ""    // "1 Hour Before" etc., shown in notification
     ) {
         if (reminderTime <= System.currentTimeMillis()) return  // already past
 
