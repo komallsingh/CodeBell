@@ -108,7 +108,5 @@ No more missed contests. No more switching apps.
 
 ---
 
-## 🚀 Getting Started
-
 ```bash
 git clone https://github.com/komallsingh/CodeBell.git
