@@ -5,7 +5,7 @@
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)
 ![Room](https://img.shields.io/badge/Room-FF6F00?style=for-the-badge&logo=android&logoColor=white)
 
-> 🚀 Never miss a coding contest again. Track, filter, and get reminded — all in one place.
+> 🚀 Never miss a coding contest again. Track, filter, and get reminded — all in one place from different platforms.
 
 ---
 
