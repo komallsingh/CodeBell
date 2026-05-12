@@ -9,14 +9,14 @@
 
 ---
 
-## 📌 What is CodeBell?
+## 📌 What is CodeBell??
 
 Keeping up with contests across platforms like Codeforces, LeetCode, and CodeChef can be messy.  
 
 **CodeBell** simplifies everything by:
 - 📡 Bringing all contests into one clean feed  
 - ⏳ Showing a live countdown  
-- 🔔 Letting you set smart reminders  
+- 🔔 Letting you set smart reminders along with Date & Time  
 
 No more missed contests. No more switching apps.
 
