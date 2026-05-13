@@ -102,7 +102,7 @@ fun WelcomeScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "CONTEST TRACKER",
+                text = "CODE-BELL",
                 color = AppTheme.AccentBlue.copy(alpha = 0.8f),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,

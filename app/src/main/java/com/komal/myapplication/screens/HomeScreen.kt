@@ -283,7 +283,6 @@ fun HomeScreen(
                 }
 
                 Spacer(Modifier.height(12.dp))
-
                 upcomingTwo.forEach { contest ->
                     var timeLeft by remember(contest.id) {
                         mutableStateOf(contest.startTimeMillis - System.currentTimeMillis())
@@ -323,7 +322,6 @@ fun HomeScreen(
                     fontSize = 14.sp
                 )
             }
-
             Spacer(Modifier.height(28.dp))
         }
     }

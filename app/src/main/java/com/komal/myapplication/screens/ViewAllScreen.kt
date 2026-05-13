@@ -45,8 +45,10 @@ fun ViewAllScreen(navController: NavController) {
     var selectedPlatform by remember { mutableStateOf("All") }
     var selectedDateFilter by remember { mutableStateOf(DateFilter.ALL) }
 
-    val platforms = remember(contests) {
-        listOf("All") + contests.map { it.platform }.distinct().sorted()
+    val platforms by remember(contests) {
+        derivedStateOf {
+            listOf("All") + contests.map { it.platform }.distinct().sorted()
+        }
     }
 
     val now = System.currentTimeMillis()
@@ -76,7 +78,8 @@ fun ViewAllScreen(navController: NavController) {
                     it.name.contains(search, true) ||
                     it.platform.contains(search, true)
         }
-        .filter { selectedPlatform == "All" || it.platform == selectedPlatform }
+        .filter { selectedPlatform == "All" ||
+                it.platform.equals(selectedPlatform, ignoreCase = true) }
         .filter {
             when (selectedDateFilter) {
                 DateFilter.ALL        -> true

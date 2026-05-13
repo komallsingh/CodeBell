@@ -8,10 +8,6 @@ data class CodeforcesContest(
     val startTimeSeconds: Long = 0L,
     val durationSeconds: Long = 0L
 )
-data class CodeforcesResponse(
-    val status: String = "",
-    val result: List<CodeforcesContest> = emptyList()
-)
 
 // ── CODECHEF ──
 data class CodechefResponse(
@@ -22,21 +18,22 @@ data class CodechefResponse(
 data class CodechefContest(
     val contest_code: String = "",
     val contest_name: String = "",
-    val contest_start_date: String = "",  // "2026-03-20 14:00:00"
+    val contest_start_date: String = "",
     val contest_end_date: String = "",
     val contest_duration: String = ""
 )
 
-// ── LEETCODE ──
-data class LeetcodeContest(
+// ── HACKERRANK ──
+data class HackerrankContest(
+    val name: String = "",
+    val slug: String = "",
+    val created_at: String = ""
+)
+
+// ── ATCODER ──
+data class AtcoderContest(
+    val id: String = "",
     val title: String = "",
-    val titleSlug: String = "",
-    val startTime: Long = 0L,
-    val duration: Int = 0
-)
-data class LeetcodeResponse(
-    val data: LeetcodeData? = null
-)
-data class LeetcodeData(
-    val topTwoContests: List<LeetcodeContest> = emptyList()
+    val start_epoch_second: Long = 0L,
+    val duration_second: Long = 0L
 )

@@ -42,7 +42,7 @@ private val AmberYellow = Color(0xFFF59E0B)
 
 @Composable
 fun UpcomingItem(
-    contest: ContestEntity,              //  pass full entity instead of strings
+    contest: ContestEntity,              //pass full entity instead of strings
     remainingTime: Long = 0L,
     viewModel: ContestViewModel
 ) {
@@ -53,7 +53,7 @@ fun UpcomingItem(
     val minutes = floor((remainingTime / 1000 % 3600) / 60.0).toInt()
     val seconds = (remainingTime / 1000 % 60).toInt()
 
-    // initialise from DB so it survives recomposition
+    //initialise from DB so it survives recomposition
     var reminderActive by remember(contest.id) {
         mutableStateOf(contest.reminderEnabled)
     }
@@ -98,7 +98,7 @@ fun UpcomingItem(
                     )
                 }
 
-                // ── Bell icon — grey when off, amber when on
+                //Bell icon — grey when off, amber when on
                 IconButton(
                     onClick = {
                         haptic.performHapticFeedback(
@@ -155,8 +155,7 @@ fun UpcomingItem(
                     )
                 }
             }
-
-            // countdown boxes
+            //countdown boxes
             if (remainingTime > 0) {
                 Spacer(Modifier.height(12.dp))
                 Row(
@@ -174,7 +173,7 @@ fun UpcomingItem(
     }
 }
 
-// Renamed to avoid conflict with TimeBox in ContestCard.kt
+//Renamed to avoid conflict with TimeBox in ContestCard.kt
 @Composable
 fun UpcomingTimeBox(value: Int, label: String, modifier: Modifier = Modifier) {
     Column(
