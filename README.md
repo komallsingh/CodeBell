@@ -46,7 +46,7 @@ No more missed contests. No more switching apps.
   Update or cancel reminders directly from the UI  
 
 - 📶 **Offline Support**  
-  Works without internet after first fetch  
+  Works without internet after first fetch  and has ROOM support too
 
 ---
 
