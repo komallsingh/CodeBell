@@ -16,7 +16,6 @@ interface CodeforcesApiService {
 
 // CODECHEF
 interface CodechefApiService {
-
     @GET("/codechef/contests")
     suspend fun getContests(): CodechefResponse
 }

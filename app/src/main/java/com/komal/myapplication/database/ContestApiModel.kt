@@ -1,6 +1,6 @@
 package com.komal.myapplication.database
 
-// ── CODEFORCES ──
+// codeforces
 data class CodeforcesContest(
     val id: Int = 0,
     val name: String = "",
@@ -9,12 +9,11 @@ data class CodeforcesContest(
     val durationSeconds: Long = 0L
 )
 
-// ── CODECHEF ──
+// codechef
 data class CodechefResponse(
     val future_contests: List<CodechefContest> = emptyList(),
     val present_contests: List<CodechefContest> = emptyList()
 )
-
 data class CodechefContest(
     val contest_code: String = "",
     val contest_name: String = "",
@@ -23,14 +22,14 @@ data class CodechefContest(
     val contest_duration: String = ""
 )
 
-// ── HACKERRANK ──
+// hackerrank
 data class HackerrankContest(
     val name: String = "",
     val slug: String = "",
     val created_at: String = ""
 )
 
-// ── ATCODER ──
+// atcoder
 data class AtcoderContest(
     val id: String = "",
     val title: String = "",

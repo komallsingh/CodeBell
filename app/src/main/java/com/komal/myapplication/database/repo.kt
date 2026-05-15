@@ -25,22 +25,15 @@ class Repo(private val dao: dao) {
     suspend fun clearAll() =
         dao.clearAll()
 
-    // ─────────────────────────────
     // MAIN FETCH FUNCTION
-    // ─────────────────────────────
     suspend fun fetchAndStoreApiContests() {
-
         dao.clearApiContests()
-
         fetchCodeforces()
         fetchCodechef()
         fetchHackerrank()
-        fetchAtcoder()
+        //fetchAtcoder()
     }
-
-    // ─────────────────────────────
     // CODEFORCES
-    // ─────────────────────────────
     private suspend fun fetchCodeforces() {
         try {
             val contests = RetrofitInstance.codeforces.getContests()
@@ -72,9 +65,7 @@ class Repo(private val dao: dao) {
         }
     }
 
-    // ─────────────────────────────
     // CODECHEF
-    // ─────────────────────────────
     private suspend fun fetchCodechef() {
         try {
             android.util.Log.d("FETCH_DEBUG", "Fetching CodeChef...")
@@ -102,6 +93,8 @@ class Repo(private val dao: dao) {
                             isManual = false
                         )
                     )
+                }else {
+                    android.util.Log.d("SKIP", "CodeChef skipped: $startMillis")
                 }
             }
 
@@ -111,26 +104,17 @@ class Repo(private val dao: dao) {
             android.util.Log.e("FETCH_DEBUG", "CodeChef failed: ${e.message}")
         }
     }
-
-    // ─────────────────────────────
     // HACKERRANK
-    // ─────────────────────────────
     private suspend fun fetchHackerrank() {
         try {
             android.util.Log.d("FETCH_DEBUG", "Fetching HackerRank...")
-
             val response =
                 RetrofitInstance.hackerrank.getContests()
-
             val now = System.currentTimeMillis()
-
             response.forEach { contest ->
-
                 val startMillis =
                     parseHackerrankTime(contest.created_at)
-
                 if (startMillis > now) {
-
                     dao.insertContest(
                         ContestEntity(
                             name = contest.name,
@@ -144,6 +128,8 @@ class Repo(private val dao: dao) {
                             isManual = false
                         )
                     )
+                }else {
+                    android.util.Log.d("SKIP", "hackerrank skipped: $startMillis")
                 }
             }
 
@@ -153,66 +139,72 @@ class Repo(private val dao: dao) {
             android.util.Log.e("FETCH_DEBUG", "HackerRank failed: ${e.message}")
         }
     }
-
-    // ─────────────────────────────
     // ATCODER
-    // ─────────────────────────────
-    private suspend fun fetchAtcoder() {
-        try {
-            android.util.Log.d("FETCH_DEBUG", "Fetching AtCoder...")
+//    private suspend fun fetchAtcoder() {
+//        try {
+//            android.util.Log.d("FETCH_DEBUG", "Fetching AtCoder...")
+//
+//            val response = RetrofitInstance.atcoder.getContests()
+//            val now = System.currentTimeMillis()
+//
+//            response.forEach { contest ->
+//
+//                val startMillis = contest.start_epoch_second * 1000L
+//
+//                android.util.Log.d(
+//                    "PARSE_DEBUG",
+//                    "AtCoder: ${contest.title} → $startMillis"
+//                )
+//
+//                // safety check (ONLY needed fix)
+//                if (startMillis <= 0L) {
+//                    android.util.Log.d("SKIP", "AtCoder invalid time: ${contest.title}")
+//                    return@forEach
+//                }
+//
+//                if (startMillis > now) {
+//
+//                    dao.insertContest(
+//                        ContestEntity(
+//                            name = contest.title,
+//                            platform = "AtCoder",
+//                            startTimeMillis = startMillis,
+//                            durationSeconds = contest.duration_second,
+//                            contestUrl = "https://atcoder.jp/contests/${contest.id}",
+//                            reminderTimeMillis = 0L,
+//                            reminderEnabled = false,
+//                            isManual = false
+//                        )
+//                    )
+//                } else {
+//                    android.util.Log.d("SKIP", "AtCoder skipped: $startMillis")
+//                }
+//            }
+//
+//            android.util.Log.d("FETCH_DEBUG", "AtCoder done!")
+//
+//        } catch (e: Exception) {
+//            android.util.Log.e("FETCH_DEBUG", "AtCoder failed: ${e.message}")
+//        }
+//    }
 
-            val response =
-                RetrofitInstance.atcoder.getContests()
-
-            val now = System.currentTimeMillis()
-
-            response.forEach { contest ->
-
-                val startMillis =
-                    contest.start_epoch_second * 1000L
-
-                if (startMillis > now) {
-
-                    dao.insertContest(
-                        ContestEntity(
-                            name = contest.title,
-                            platform = "AtCoder",
-                            startTimeMillis = startMillis,
-                            durationSeconds = contest.duration_second,
-                            contestUrl =
-                                "https://atcoder.jp/contests/${contest.id}",
-                            reminderTimeMillis = 0L,
-                            reminderEnabled = false,
-                            isManual = false
-                        )
-                    )
-                }
-            }
-
-            android.util.Log.d("FETCH_DEBUG", "AtCoder done!")
-
-        } catch (e: Exception) {
-            android.util.Log.e("FETCH_DEBUG", "AtCoder failed: ${e.message}")
-        }
-    }
-
-    // ─────────────────────────────
     // TIME PARSERS
-    // ─────────────────────────────
     private fun parseCodechefTime(timeStr: String): Long {
         return try {
+            val cleaned = timeStr.trim().replace("\\s+".toRegex(), " ")
+
             val sdf = java.text.SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss",
-                java.util.Locale.getDefault()
+                "dd MMM yyyy HH:mm:ss",
+                java.util.Locale.ENGLISH
             ).apply {
                 timeZone = java.util.TimeZone.getTimeZone("UTC")
             }
-            sdf.parse(timeStr)?.time ?: 0L
+
+            sdf.parse(cleaned)?.time ?: 0L
         } catch (e: Exception) {
             0L
         }
     }
-
     private fun parseHackerrankTime(time: String): Long {
         return try {
             val sdf = java.text.SimpleDateFormat(
@@ -221,15 +213,18 @@ class Repo(private val dao: dao) {
             ).apply {
                 timeZone = java.util.TimeZone.getTimeZone("UTC")
             }
-            sdf.parse(time)?.time ?: 0L
+
+            val result = sdf.parse(time)?.time ?: 0L
+            android.util.Log.d("PARSE_DEBUG", "HackerRank: $time → $result")
+            result
+
         } catch (e: Exception) {
+            android.util.Log.e("PARSE_DEBUG", "HackerRank parse failed: $time", e)
             0L
         }
     }
 
-    // ─────────────────────────────
     // BOOKMARK
-    // ─────────────────────────────
     suspend fun toggleBookmark(contest: ContestEntity) {
         dao.updateContest(
             contest.copy(isBookmarked = !contest.isBookmarked)
