@@ -21,7 +21,13 @@ data class CodechefContest(
     val contest_end_date: String = "",
     val contest_duration: String = ""
 )
-
+//leetcode
+data class LeetcodeContest(
+    val title: String = "",
+    val titleSlug: String = "",
+    val startTime: Long = 0L,
+    val duration: Long = 0L
+)
 // hackerrank
 data class HackerrankContest(
     val name: String = "",

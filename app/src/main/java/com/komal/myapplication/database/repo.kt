@@ -31,6 +31,7 @@ class Repo(private val dao: dao) {
         fetchCodeforces()
         fetchCodechef()
         fetchHackerrank()
+        fetchLeetCode()
         //fetchAtcoder()
     }
     // CODEFORCES
@@ -62,6 +63,36 @@ class Repo(private val dao: dao) {
 
         } catch (e: Exception) {
             android.util.Log.e("FETCH", "Codeforces failed", e)
+        }
+    }
+    //LEETCODE
+    private suspend fun fetchLeetCode() {
+        try {
+
+            val contest = RetrofitInstance.leetcode.getContests()
+            val now = System.currentTimeMillis()
+
+            contest.forEach { contest ->
+
+                val startMillis = contest.startTime * 1000L
+
+                if (startMillis > now) {
+
+                    dao.insertContest(
+                        ContestEntity(
+                            name = contest.title,
+                            platform = "LeetCode",
+                            startTimeMillis = startMillis,
+                            durationSeconds = contest.duration,
+                            contestUrl = "https://leetcode.com/contest/${contest.titleSlug}",
+                            isManual = false
+                        )
+                    )
+                }
+            }
+
+        } catch (e: Exception) {
+            android.util.Log.e("FETCH", "LeetCode failed", e)
         }
     }
 

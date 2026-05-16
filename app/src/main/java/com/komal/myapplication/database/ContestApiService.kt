@@ -13,7 +13,11 @@ interface CodeforcesApiService {
     @GET("/codeforces/contests")
     suspend fun getContests(): List<CodeforcesContest>
 }
-
+//LEETCODE
+interface LeetcodeApiService{
+    @GET("/leetcode/contests")
+    suspend fun getContests(): List<LeetcodeContest>
+}
 // CODECHEF
 interface CodechefApiService {
     @GET("/codechef/contests")
@@ -73,7 +77,7 @@ object RetrofitInstance {
         retrofit.create(HackerrankApiService::class.java)
     }
 
-    val atcoder: AtcoderApiService by lazy {
-        retrofit.create(AtcoderApiService::class.java)
+    val leetcode: LeetcodeApiService by lazy {
+        retrofit.create(LeetcodeApiService::class.java)
     }
 }
