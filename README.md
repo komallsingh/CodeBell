@@ -1,4 +1,10 @@
-# 🔔💻 CodeBell  
+# 🔔 CodeBell
+
+<div align="center">
+
+### Never miss a coding contest again.
+
+Track upcoming contests, manage reminders, and stay competition-ready across multiple coding platforms — all from one app.
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
@@ -6,108 +12,221 @@
 ![Room](https://img.shields.io/badge/Room-FF6F00?style=for-the-badge&logo=android&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
-> 🚀 Never miss a coding contest again. Track, filter, and get reminded — all in one place from different platforms.
+
+</div>
 
 ---
 
-## 📌 What is CodeBell??
+## 📖 Overview
 
-Keeping up with contests across platforms like Codeforces, LeetCode, and CodeChef can be messy.  
+Competitive programmers often participate in contests hosted across multiple platforms such as Codeforces, LeetCode, CodeChef, AtCoder, and more.
 
-**CodeBell** simplifies everything by:
-- 📡 Bringing all contests into one clean feed  
-- ⏳ Showing a live countdown  
-- 🔔 Letting you set smart reminders along with Date & Time  
+Keeping track of contest schedules manually can be frustrating and often leads to missed opportunities.
 
-No more missed contests. No more switching apps.
+**CodeBell** solves this problem by providing a centralized platform where users can:
+
+- 📡 View upcoming contests from multiple platforms
+- ⏳ Track live countdowns to contest start times
+- 🔔 Schedule personalized reminders
+- ➕ Add custom contests and events
+- 📶 Access previously fetched contests offline
+
+Whether you're preparing for placements, improving your competitive programming skills, or participating in coding events regularly, CodeBell helps you stay organized and never miss an important contest.
 
 ---
 
 ## ✨ Features
 
-- 📡 **Live Contest Feed**  
-  Auto-fetches upcoming contests from multiple platforms on launch  
+### 📡 Unified Contest Feed
+View upcoming contests from multiple competitive programming platforms in a single place.
 
-- ⏳ **Real-time Countdown**  
-  See exactly how much time is left for your next contest  
+### ⏳ Live Countdown Timer
+Real-time countdowns help you know exactly when the next contest begins.
 
-- 🔔 **Smart Reminders**  
-  Get notified:
-  - 30 minutes before  
-  - 1 hour before  
-  - 1 day before  
+### 🔔 Smart Reminder System
+Schedule reminders according to your preference:
 
-- ➕ **Manual Contests**  
-  Add your own college or private contests easily  
+- 30 Minutes Before
+- 1 Hour Before
+- 1 Day Before
 
-- 🔍 **Filter & Search**  
-  Find contests by platform, name, or date  
+### ➕ Custom Contest Support
+Create and manage your own contests, hackathons, college coding events, or practice sessions.
 
-- 🛠 **Reminder Management**  
-  Update or cancel reminders directly from the UI  
+### 🔍 Search & Filter
+Quickly find contests based on:
 
-- 📶 **Offline Support**  
-  Works without internet after first fetch  and has ROOM support too
+- Platform
+- Contest Name
+- Date
+
+### 🛠 Reminder Management
+Modify or cancel reminders anytime from within the app.
+
+### 📶 Offline Support
+Previously fetched contests remain accessible even without an internet connection using Room Database.
+
+---
+
+## 🏗 Architecture
+
+CodeBell follows the **MVVM (Model–View–ViewModel)** architecture pattern to maintain clean separation of concerns and improve scalability.
+
+```text
+UI (Jetpack Compose)
+        ↓
+ViewModel
+        ↓
+Repository
+   ↙         ↘
+Room       Retrofit
+(Local)    (Remote)
+```
 
 ---
 
 ## 🧠 Tech Stack
 
-| ⚙️ Category | 🚀 Tech |
-|------------|--------|
+| Category | Technology |
+|-----------|------------|
 | Language | Kotlin |
-| UI | Jetpack Compose + Material 3 |
+| UI Toolkit | Jetpack Compose |
+| Design System | Material 3 |
 | Architecture | MVVM |
 | Database | Room |
 | Networking | Retrofit + OkHttp |
+| Dependency Injection | Hilt *(Planned)* |
+| Navigation | Navigation Compose |
+| State Management | StateFlow |
+| Asynchronous Programming | Kotlin Coroutines |
 | Notifications | AlarmManager + BroadcastReceiver |
-| State | ViewModel + StateFlow |
-| Navigation | Jetpack Navigation Compose |
-| Async | Kotlin Coroutines |
+| Local Persistence | Room Database |
 
 ---
 
-## ⚙️ How It Works
+## ⚙️ Core Functionality
 
-### 📡 Contest Fetching
-- Fetches data from Codeforces, LeetCode, and CodeChef APIs  
-- No API keys required  
-- API contests are refreshed every launch  
-- Manual contests stay safe 😄  
+### Contest Fetching
 
----
+- Retrieves upcoming contests from supported platforms
+- Keeps contest information updated
+- Stores fetched contests locally for offline access
 
-### 🔔 Reminders
-- Uses `AlarmManager.setExactAndAllowWhileIdle()`  
-- Works even in Doze mode ⚡  
-- Each reminder is uniquely tied to a contest ID  
-- Cancelling removes both alarm + DB flag  
+### Reminder Scheduling
 
----
+Uses Android's AlarmManager:
 
-### ➕ Adding Manual Contests
-- Bottom sheet input UI  
-- Fields:
-  - Contest name  
-  - Platform  
-  - Date & Time  
-  - Reminder offset  
+```kotlin
+AlarmManager.setExactAndAllowWhileIdle()
+```
 
-- Room generates ID → used instantly for alarm scheduling  
-- 🚫 No race conditions  
+Benefits:
+
+- Accurate reminder delivery
+- Works during Doze Mode
+- Supports multiple reminders
+- Reliable notification scheduling
+
+### Manual Contest Creation
+
+Users can create their own events by specifying:
+
+- Contest Name
+- Platform
+- Date & Time
+- Reminder Preference
+
+Custom contests are stored locally and behave exactly like fetched contests.
 
 ---
 
 ## 📱 Screens
 
-| 📺 Screen | 📝 Description |
-|----------|---------------|
-| 👋 Welcome | Onboarding screen |
-| 🏠 Home | Countdown + upcoming contests |
-| 📋 All Contests | Full list with filters & search |
-| ➕ Add Contest | Bottom sheet for adding contests |
+| Screen | Description |
+|----------|------------|
+| Welcome Screen | User onboarding |
+| Home Screen | Countdown and upcoming contests |
+| Contest List | All contests with search and filtering |
+| Add Contest | Create custom contests |
+| Reminder Management | Manage notifications |
 
 ---
 
+## 🚀 Getting Started
+
+### Clone the Repository
+
 ```bash
 git clone https://github.com/komallsingh/CodeBell.git
+```
+
+### Open in Android Studio
+
+```bash
+File → Open → Select CodeBell
+```
+
+### Build & Run
+
+```bash
+./gradlew assembleDebug
+```
+
+---
+
+## 🛣 Roadmap
+
+### Completed
+
+- [x] Contest Listing
+- [x] Search & Filtering
+- [x] Reminder Scheduling
+- [x] Offline Storage with Room
+- [x] Custom Contest Creation
+
+### Planned
+
+- [ ] Firebase Authentication
+- [ ] Cloud Sync
+- [ ] Widgets
+- [ ] Dynamic Theme Support
+- [ ] Multi-device Reminder Sync
+- [ ] Calendar Integration
+- [ ] Contest Analytics
+
+---
+
+## 🤝 Contributing
+
+Contributions, suggestions, and feedback are welcome.
+
+If you would like to contribute:
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Open a Pull Request
+
+---
+
+## 👩‍💻 Author
+
+**Komal Singh**
+
+Android Developer • Open Source Contributor • Aspiring Generative AI Engineer
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+See the LICENSE file for more information.
+
+---
+
+<div align="center">
+
+⭐ If you find CodeBell useful, consider starring the repository.
+
+</div>
