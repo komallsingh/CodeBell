@@ -227,12 +227,13 @@ class Repo(private val dao: dao) {
             val sdf = java.text.SimpleDateFormat(
                 "dd MMM yyyy HH:mm:ss",
                 java.util.Locale.ENGLISH
-            ).apply {
-                timeZone = java.util.TimeZone.getTimeZone("UTC")
-            }
+            )
 
+            //  DO NOT force UTC
             sdf.parse(cleaned)?.time ?: 0L
+
         } catch (e: Exception) {
+            android.util.Log.e("PARSE", "CodeChef parse failed: $timeStr", e)
             0L
         }
     }

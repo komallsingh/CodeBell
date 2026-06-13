@@ -35,10 +35,6 @@ class ContestViewModel(application: Application) : AndroidViewModel(application)
             )
     }
 
-    /**
-     * Insert a contest and return the real Room-assigned ID via [onInserted].
-     * Use this when you need to schedule a reminder right after insert.
-     */
     fun insertContest(contest: ContestEntity, onInserted: (realId: Long) -> Unit = {}) {
         viewModelScope.launch {
             try {

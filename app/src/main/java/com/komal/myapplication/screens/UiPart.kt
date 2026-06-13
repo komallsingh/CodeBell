@@ -47,7 +47,7 @@ private val AmberYellow       = Color(0xFFF59E0B)
 private val AmberYellowBg     = Color(0xFFF59E0B).copy(alpha = 0.11f)
 private val AmberYellowBorder = Color(0xFFF59E0B).copy(alpha = 0.40f)
 
-// ── CONTEST CARD ──────────────────────────────────────────────────────────────
+// CONTEST CARD
 
 @Composable
 fun ContestCard(

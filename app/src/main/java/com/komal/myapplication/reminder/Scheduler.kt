@@ -9,10 +9,6 @@ import java.util.Calendar
 
 object ReminderScheduler {
 
-    /**
-     * Schedule a single reminder at [reminderTime] (exact epoch ms).
-     * Call this after computing: reminderTime = startTime - offsetMillis
-     */
     fun schedule(
         context: Context,
         contestId: Int,
@@ -54,9 +50,6 @@ object ReminderScheduler {
         }
     }
 
-    /**
-     * Cancel any scheduled reminder for this contest.
-     */
     fun cancel(
         context: Context,
         contestId: Int
