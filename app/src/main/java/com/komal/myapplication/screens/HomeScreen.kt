@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Computer
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -139,11 +140,11 @@ fun HomeScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     IconButton(
-                        onClick = { navController.navigate("view all") },
+                        onClick = { navController.navigate("profile") },
                         modifier = Modifier.size(42.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Search,
+                            imageVector = Icons.Default.Face,
                             contentDescription = null,
                             tint = AppTheme.TextSecondary,
                             modifier = Modifier.size(18.dp)
