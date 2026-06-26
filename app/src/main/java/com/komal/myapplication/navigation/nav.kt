@@ -5,6 +5,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.komal.myapplication.screens.HomeScreen
+import com.komal.myapplication.screens.LoginScreen
+import com.komal.myapplication.screens.RegisterScreen
 import com.komal.myapplication.screens.ViewAllScreen
 import com.komal.myapplication.screens.WelcomeScreen
 @Composable
@@ -20,6 +22,12 @@ fun AppNavigation(navController: NavHostController){
       }
       composable(route="view all"){
           ViewAllScreen(navController)
+      }
+      composable(route="register"){
+          RegisterScreen(navController)
+      }
+      composable(route="login"){
+          LoginScreen(navController)
       }
   }
 }

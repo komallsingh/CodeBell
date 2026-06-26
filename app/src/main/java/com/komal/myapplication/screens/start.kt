@@ -180,7 +180,7 @@ fun WelcomeScreen(navController: NavController) {
                     .background(AppTheme.GradientButton, RoundedCornerShape(14.dp))
             ) {
                 Button(
-                    onClick = { navController.navigate("home") },
+                    onClick = { navController.navigate("register") },
                     modifier = Modifier.fillMaxSize(),
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
