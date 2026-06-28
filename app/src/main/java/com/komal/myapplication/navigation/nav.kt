@@ -11,10 +11,12 @@ import com.komal.myapplication.screens.RegisterScreen
 import com.komal.myapplication.screens.ViewAllScreen
 import com.komal.myapplication.screens.WelcomeScreen
 @Composable
-fun AppNavigation(navController: NavHostController){
+fun AppNavigation(navController: NavHostController,
+                  isLoggedIn:Boolean
+){
 
   NavHost(
-      navController=navController, startDestination = "welcome"
+      navController=navController, startDestination = if(isLoggedIn) "home" else "welcome"
   ){
       composable("welcome"){
           WelcomeScreen(navController)

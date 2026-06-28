@@ -6,8 +6,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
+import com.komal.myapplication.auth.TokenManager
 import com.komal.myapplication.navigation.AppNavigation
 import com.komal.myapplication.reminder.NotificationHelper
 import com.komal.myapplication.ui.theme.MyApplicationTheme
@@ -39,8 +44,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MyApplicationTheme {
+                val context = LocalContext.current
+                val tokenManager = remember { TokenManager(context) }
+
+                val token by tokenManager
+                    .tokenFlow
+                    .collectAsState(initial = null)
                 val navController = rememberNavController()
-                AppNavigation(navController)
+                AppNavigation(navController, isLoggedIn = !token.isNullOrEmpty())
             }
         }
     }
