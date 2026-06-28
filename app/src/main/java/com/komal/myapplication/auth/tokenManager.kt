@@ -34,9 +34,17 @@ class TokenManager(
 
     val tokenFlow =
         context.dataStore.data.map {
-            it[TOKEN_KEY]
+            it[TOKEN_KEY]?:""
+        }
+    val usernameFlow =
+        context.dataStore.data.map {
+            it[USERNAME_KEY]?:""
         }
 
+    val emailFlow =
+        context.dataStore.data.map {
+            it[EMAIL_KEY]?:""
+        }
     suspend fun clearToken() {
         context.dataStore.edit {
             it.clear()

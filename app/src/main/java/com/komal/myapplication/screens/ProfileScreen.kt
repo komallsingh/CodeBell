@@ -12,24 +12,40 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.komal.myapplication.auth.TokenManager
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    navController: NavController,
-    username: String = "Developer", // Pass these from your state/database dynamically
-    email: String = "developer@codebell.com"
+    navController: NavController
 ) {
+    val context = LocalContext.current
+    val tokenManager = remember { TokenManager(context) }
+
+    val username by tokenManager
+        .usernameFlow
+        .collectAsState(initial = "")
+
+    val email by tokenManager
+        .emailFlow
+        .collectAsState(initial = "")
+    val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -43,7 +59,7 @@ fun ProfileScreen(
         ) {
             Spacer(modifier = Modifier.height(56.dp))
 
-            // ── Top Header Bar ──────────────────────────────────────────────
+            // Top Header Bar
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -81,7 +97,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // ── Avatar Placeholder ──────────────────────────────────────────
+            // Avatar Placeholder
             Box(
                 modifier = Modifier
                     .size(90.dp)
@@ -118,7 +134,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // ── Info Section Heading ────────────────────────────────────────
+            // Info Section Heading
             Text(
                 text = "ACCOUNT DETAILS",
                 color = AppTheme.TextMuted,
@@ -128,7 +144,7 @@ fun ProfileScreen(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            // ── Credential Info Block ───────────────────────────────────────
+            // Credential Info Block
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -167,12 +183,18 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // ── Logout Action Button ────────────────────────────────────────
+            // Logout Action Button
             Button(
                 onClick = {
-                    // Wipes the back-stack clean and drops user completely out to the Welcome Screen
-                    navController.navigate("welcome") {
-                        popUpTo(0) { inclusive = true }
+                    scope.launch {
+
+                        tokenManager.clearToken()
+
+                        navController.navigate("welcome") {
+                            popUpTo(0) {
+                                inclusive = true
+                            }
+                        }
                     }
                 },
                 modifier = Modifier
