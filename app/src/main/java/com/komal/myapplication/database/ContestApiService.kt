@@ -1,5 +1,6 @@
 package com.komal.myapplication.database
 
+import com.komal.myapplication.auth.AuthApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -41,7 +42,7 @@ interface AtcoderApiService {
 object RetrofitInstance {
 
     private const val BASE_URL =
-        "https://cp-api-backend.onrender.com"
+        "https://cp-api-backend-1.onrender.com/"
 
     private fun buildClient(): OkHttpClient {
 
@@ -79,5 +80,8 @@ object RetrofitInstance {
 
     val leetcode: LeetcodeApiService by lazy {
         retrofit.create(LeetcodeApiService::class.java)
+    }
+    val auth: AuthApiService by lazy {
+        retrofit.create(AuthApiService::class.java)
     }
 }

@@ -12,6 +12,7 @@ import com.komal.myapplication.screens.ViewAllScreen
 import com.komal.myapplication.screens.WelcomeScreen
 @Composable
 fun AppNavigation(navController: NavHostController){
+
   NavHost(
       navController=navController, startDestination = "welcome"
   ){

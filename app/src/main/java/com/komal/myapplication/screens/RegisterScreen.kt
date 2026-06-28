@@ -11,13 +11,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.komal.myapplication.auth.AuthViewModel
+import com.komal.myapplication.auth.TokenManager
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(navController: NavController) {
@@ -25,7 +30,15 @@ fun RegisterScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val tokenManager = remember { TokenManager(context) }
+    val authViewModel: AuthViewModel = viewModel()
 
+    val scope = rememberCoroutineScope()
+
+    var errorMessage by remember {
+        mutableStateOf<String?>(null)
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -150,9 +163,41 @@ fun RegisterScreen(navController: NavController) {
             // M3 Registration Action Button
             Button(
                 onClick = {
-                    navController.navigate("home") {
-                        popUpTo("login") { inclusive = true }
+
+                    if (password != confirmPassword) {
+
+                        errorMessage = "Passwords do not match"
+                        return@Button
                     }
+
+                    authViewModel.register(
+                        username = name,
+                        email = email,
+                        password = password,
+
+                        onSuccess = { token, username, userEmail ->
+
+                            scope.launch {
+
+                                tokenManager.saveAuthData(
+                                    token = token,
+                                    username = username,
+                                    email = userEmail
+                                )
+
+                                navController.navigate("home") {
+
+                                    popUpTo("welcome") {
+                                        inclusive = true
+                                    }
+                                }
+                            }
+                        },
+
+                        onError = {
+                            errorMessage = it
+                        }
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()

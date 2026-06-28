@@ -86,8 +86,18 @@ dependencies {
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-
+    implementation("br.com.devsrsouza.compose.icons:font-awesome:1.1.1")
+   // implementation("br.com.devsrsouza.compose.icons:ionicons:1.1.1")
     // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+
+// DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+// Kotlin Serialization (optional)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 }
